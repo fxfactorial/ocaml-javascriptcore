@@ -1,2 +1,7 @@
 *.o
-program
+*.cmi
+*.cmt
+*.cmx
+*.cmxa
+*.a
+Test_program
