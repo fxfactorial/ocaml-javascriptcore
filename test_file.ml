@@ -7,5 +7,6 @@ return "Hello world string from JS to OCaml";
 })()
 |}
   in
-  exec_js js_code
+  let ctx = make_context () in
+  exec_js ctx js_code
   |> print_endline
