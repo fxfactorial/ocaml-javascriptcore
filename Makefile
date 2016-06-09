@@ -7,13 +7,18 @@ objects := jscore_stubs.o
 
 ml_cc_opts := '-std=c++11 -stdlib=libstdc++'
 ml_cc_libs := '-framework Foundation -framework JavaScriptCore -lc++'
-ml_cc := ocamlopt
+ml_cc := ocamlfind ocamlopt
 ml_jsc_lib := javaScriptCore.cmxa
+
+test_server_pkgs := cohttp.lwt,podge,lwt.ppx
 
 exec := Test_program
 
-all:ml_lib ${objects}
-	ocamlopt ${ml_jsc_lib} -cc ${cc} -ccopt ${ml_cc_opts} test_file.ml -o ${exec}
+test_server:ml_lib ${objects}
+	${ml_cc} ${ml_jsc_lib} \
+	-cc ${cc} -ccopt ${ml_cc_opts} \
+	-package ${test_server_pkgs} -linkpkg \
+	test_server.ml -o ${exec}
 
 ml_lib:javaScriptCore.ml
 	${ml_cc} ${objects} \
