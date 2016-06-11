@@ -21,7 +21,7 @@ endif
 
 ml_cc := ocamlfind ocamlopt
 ml_jsc_lib := javaScriptCore.cmxa
-test_server_pkgs := cohttp.lwt,podge,lwt.ppx
+test_server_pkgs := cohttp.lwt,lwt.ppx
 
 exec := Test_program
 

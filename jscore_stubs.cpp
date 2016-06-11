@@ -13,8 +13,9 @@
 
 extern "C" {
 
-  CAMLprim value exec_js(value ctx, value js_string)
+  CAMLprim value eval_js_ml(value ctx, value js_string)
   {
+    CAMLparam2(ctx, js_string);
     const char *const result = caml_strdup(String_val(js_string));
 
     JSGlobalContextRef context = (JSGlobalContextRef)ctx;
@@ -33,12 +34,19 @@ extern "C" {
     char *string_buffer = (char*)malloc(string_len);
     JSStringGetUTF8CString(result_as_string, string_buffer, string_len);
     JSStringRelease(code);
-    return caml_copy_string(string_buffer);
+    CAMLreturn(caml_copy_string(string_buffer));
   }
 
   CAMLprim value create_js_context_ml(value __attribute__((unused)) unit)
   {
     return (value)JSGlobalContextCreateInGroup(NULL, NULL);
+  }
+
+  CAMLprim value gc_js_ml(value ctx)
+  {
+    CAMLparam1(ctx);
+    JSGarbageCollect((JSContextRef)ctx);
+    CAMLreturn(Val_unit);
   }
 
 }
