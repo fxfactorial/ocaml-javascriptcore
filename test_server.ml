@@ -1,5 +1,3 @@
-open JavaScriptCore
-
 module S = Cohttp_lwt_unix.Server
 
 let exhaust ic =
@@ -11,9 +9,9 @@ let () =
   let reactjs_src =
     open_in "static/react.min.js" |> exhaust |> String.concat ""
   in
-  let ctx = make_context () in
+  let ctx = JavaScriptCore.make_context () in
 
-  if not (evaluate_script ctx reactjs_src |> bool_of_string)
+  if not (JavaScriptCore.evaluate_script ctx reactjs_src |> bool_of_string)
   then raise (Failure "Couldn't load JavaScript");
 
   let reactjs_code = {| (function(){
@@ -41,7 +39,9 @@ var Counter = React.createClass({
   in
 
   let callback conn _ _ =
-    let react_created_body = evaluate_script ctx reactjs_code in
+    let react_created_body =
+      JavaScriptCore.evaluate_script ctx reactjs_code
+    in
     S.respond_string ~status:`OK ~body:react_created_body ()
   in
   let server = S.make callback () in
