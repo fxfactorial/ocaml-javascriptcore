@@ -11,12 +11,6 @@
 
 #include <JavaScriptCore/JavaScript.h>
 
-// Maybe good usage of C++ for abstracting this hassle.
-// class JSVM {
-
-// };
-
-
 extern "C" {
 
   CAMLprim value exec_js(value ctx, value js_string)
@@ -29,9 +23,12 @@ extern "C" {
 
     JSObjectRef globalObject = JSContextGetGlobalObject(context);
     JSValueRef exception;
-    JSValueRef js_result = JSEvaluateScript(context, code, globalObject, NULL, 1, &exception);
+    JSValueRef js_result =
+      JSEvaluateScript(context, code, globalObject, NULL, 1, &exception);
 
-    JSStringRef result_as_string = JSValueToStringCopy(context, js_result, &exception);
+    JSStringRef result_as_string =
+      JSValueToStringCopy(context, js_result, &exception);
+
     size_t string_len = JSStringGetMaximumUTF8CStringSize(result_as_string);
     char *string_buffer = (char*)malloc(string_len);
     JSStringGetUTF8CString(result_as_string, string_buffer, string_len);
@@ -39,7 +36,7 @@ extern "C" {
     return caml_copy_string(string_buffer);
   }
 
-  CAMLprim value create_js_context_ml(__unused value unit)
+  CAMLprim value create_js_context_ml(value __attribute__((unused)) unit)
   {
     return (value)JSGlobalContextCreateInGroup(NULL, NULL);
   }

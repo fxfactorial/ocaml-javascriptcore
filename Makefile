@@ -1,15 +1,18 @@
 # -*- makefile -*-
 
 ml_headers := $(shell opam config var lib)/ocaml
-flags := -c -std=c++11 -stdlib=libc++ -Wall -I${ml_headers}
 cc := $(shell which clang++)
 objects := jscore_stubs.o
 
 ml_cc_opts := '-std=c++11 -stdlib=libstdc++'
 
 ifeq ($(shell uname),Darwin)
+	flags := -c -std=c++11 -stdlib=libc++ -Wall -I${ml_headers}
 	ml_cc_libs := '-framework JavaScriptCore -lc++'
 else
+	flags := -c -std=c++11 -stdlib=libc++ \
+	-Wall -I${ml_headers} -I/usr/include/webkitgtk-3.0
+
 	ml_cc_lib := '-lJavaScriptCore -lc++'
 endif
 
