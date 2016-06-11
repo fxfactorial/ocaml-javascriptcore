@@ -1,25 +1,44 @@
 type context
+type context_group
+type global_context
 
-external make_context : unit -> context = "create_js_context_ml"
+type js_string
+type js_class
+type js_prop_name_array
+type js_prop_name_accum
 
-external evaluate_script : ctx:context -> string -> string = "eval_js_ml"
+type js_value
+type js_object
 
-external check_script_syntax : context -> string -> bool = "check_syntax_js_ml"
 
-external garbage_collect : context -> unit = "gc_js_ml"
+external make_context : unit -> context = "jsc_ml_make_context"
 
-module Object = struct
+external evaluate_script : ctx:context -> string -> string = "jsc_ml_eval_script"
+
+external check_script_syntax : context -> string -> bool = "jsc_ml_check_syntax"
+
+external garbage_collect : context -> unit = "jsc_ml_gc"
+
+module JSValue = struct
+
+  type js_t = Undefined | Null | Bool | Number | Object
+
+  external get_type : context -> js_value -> js_t = "jsc_ml_get_type"
+
+  
 
 end
 
-module String = struct
+
+module JSObject = struct
 
 end
 
-module Value = struct
+module JSString = struct
 
 end
 
-module Context = struct
+
+module JSContext = struct
 
 end

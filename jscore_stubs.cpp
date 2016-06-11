@@ -13,7 +13,12 @@
 
 extern "C" {
 
-  CAMLprim value eval_js_ml(value ctx, value js_string)
+  CAMLprim value jsc_ml_make_context(value __attribute__((unused)) unit)
+  {
+    return (value)JSGlobalContextCreateInGroup(NULL, NULL);
+  }
+
+  CAMLprim value jsc_ml_eval_script(value ctx, value js_string)
   {
     CAMLparam2(ctx, js_string);
     const char *const result = caml_strdup(String_val(js_string));
@@ -37,19 +42,7 @@ extern "C" {
     CAMLreturn(caml_copy_string(string_buffer));
   }
 
-  CAMLprim value create_js_context_ml(value __attribute__((unused)) unit)
-  {
-    return (value)JSGlobalContextCreateInGroup(NULL, NULL);
-  }
-
-  CAMLprim value gc_js_ml(value ctx)
-  {
-    CAMLparam1(ctx);
-    JSGarbageCollect((JSContextRef)ctx);
-    CAMLreturn(Val_unit);
-  }
-
-  CAMLprim value check_syntax_js_ml(value ctx, value js_string)
+  CAMLprim value jsc_ml_check_syntax(value ctx, value js_string)
   {
     CAMLparam2(ctx, js_string);
     JSContextRef context = (JSContextRef)ctx;
@@ -58,6 +51,18 @@ extern "C" {
 
     bool is_correct = JSCheckScriptSyntax(context, js_script, NULL, 1, NULL);
     CAMLreturn(Val_bool(is_correct));
+  }
+
+  CAMLprim value jsc_ml_gc(value ctx)
+  {
+    CAMLparam1(ctx);
+    JSGarbageCollect((JSContextRef)ctx);
+    CAMLreturn(Val_unit);
+  }
+
+  CAMLprim value jsc_ml_get_type(value ctx, value js_value)
+  {
+    return Val_int(JSValueGetType((JSContextRef)ctx, (JSValueRef)js_value));
   }
 
 }
