@@ -49,4 +49,15 @@ extern "C" {
     CAMLreturn(Val_unit);
   }
 
+  CAMLprim value check_syntax_js_ml(value ctx, value js_string)
+  {
+    CAMLparam2(ctx, js_string);
+    JSContextRef context = (JSContextRef)ctx;
+    JSStringRef js_script =
+      JSStringCreateWithUTF8CString(caml_strdup(String_val(js_string)));
+
+    bool is_correct = JSCheckScriptSyntax(context, js_script, NULL, 1, NULL);
+    CAMLreturn(Val_bool(is_correct));
+  }
+
 }
