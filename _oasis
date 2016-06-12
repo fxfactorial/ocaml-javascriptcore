@@ -15,21 +15,19 @@ BuildTools:    ocamlbuild, ocamldoc
 Library "javascriptcore"
   Path: src
   Modules: JavaScriptCore
+  NativeOpt: -g -w +a-4-40..42-44-45-48
+  ByteOpt: -g -w +a-4-40..42-44-45-48
   install: true
-  NativeOpt: -cc clang++
-  ByteOpt: -cc clang++
   if system(macosx)
-    CCOpt: -g -Wall -std=c++11 -x c++
+    CCOpt: -g -Wall -std=c11
   else
     CCOpt: -I/usr/include/webkitgtk-3.0
-
   if system(macosx)
-    CClib: -framework JavaScriptCore -lc++
+    CClib: -framework JavaScriptCore
   else
-    CClib: -ljavascriptcoregtk-3.0 -lc++
-  CompiledObject: native
+    CClib: -ljavascriptcoregtk-3.0
+  CompiledObject:native
   CSources: jsc_stubs.c
-  NativeOpt: -g -w +a-4-40..42-44-45-48
 
 Library "ppx"
   FindlibName: ppx
