@@ -1,3 +1,4 @@
+/* -*- c++ -*- */
 #define CAML_NAME_SPACE
 // OCaml declarations
 #include <caml/mlvalues.h>

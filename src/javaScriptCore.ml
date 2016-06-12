@@ -25,8 +25,6 @@ module JSValue = struct
 
   external get_type : context -> js_value -> js_t = "jsc_ml_get_type"
 
-  
-
 end
 
 

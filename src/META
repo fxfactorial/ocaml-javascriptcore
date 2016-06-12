@@ -1,0 +1,22 @@
+# OASIS_START
+# DO NOT EDIT (digest: e9f9da5fd3e1f6ddad293a7b4b47f159)
+version = "0.0.1"
+description = "OCaml bindings to JavaScriptCore"
+archive(byte) = "javascriptcore.cma"
+archive(byte, plugin) = "javascriptcore.cma"
+archive(native) = "javascriptcore.cmxa"
+archive(native, plugin) = "javascriptcore.cmxs"
+exists_if = "javascriptcore.cmxa"
+package "ppx" (
+ version = "0.0.1"
+ description = "New-style (ppx) syntax extension"
+ requires = "javascriptcore"
+ archive(byte) = "ppx.cma"
+ archive(byte, plugin) = "ppx.cma"
+ archive(native) = "ppx.cmxa"
+ archive(native, plugin) = "ppx.cmxs"
+ ppx = "ppx_javascriptcore"
+ exists_if = "ppx.cma"
+)
+# OASIS_STOP
+

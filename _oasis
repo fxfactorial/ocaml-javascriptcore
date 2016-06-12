@@ -1,0 +1,61 @@
+# -*- conf -*-
+OASISFormat:   0.4
+Name:          JavaScriptCore
+Version:       0.0.1
+Synopsis:      OCaml bindings to JavaScriptCore
+Authors:       Edgar Aroutiounian <edgar.factorial@gmail.com>
+Maintainers:   Edgar Aroutiounian <edgar.factorial@gmail.com>
+Homepage:      https://github.com/fxfactorial/ocaml-javascriptcore
+License:       BSD-3-clause
+OCamlVersion:  >= 4.03.0
+AlphaFeatures: ocamlbuild_more_args
+Plugins:       META (0.4), DevFiles (0.4)
+BuildTools:    ocamlbuild, ocamldoc
+
+Library "javascriptcore"
+  Path: src
+  Modules: JavaScriptCore
+  install: true
+  CCOpt: -g -Wall -std=c++11 -x c++
+  if system(macosx)
+    CClib: -framework JavaScriptCore -lc++
+  else
+    CClib: -ljavascriptcoregtk-3.0 -lc++
+  CompiledObject: native
+  CSources: jsc_stubs.c
+  NativeOpt: -g -w +a-4-40..42-44-45-48
+
+Library "ppx"
+  FindlibName: ppx
+  FindlibParent: javascriptcore
+  Path: src/ppx
+  Modules: Ppx_jsc
+  CompiledObject: native
+  BuildDepends: compiler-libs
+  XMETADescription: New-style (ppx) syntax extension
+  XMETARequires:    javascriptcore
+  XMETAExtraLines:  ppx = "ppx_javascriptcore"
+
+Executable test_as_server
+  Path: tests
+  Install: false
+  CompiledObject: native
+  MainIs:test_server.ml
+  BuildDepends: javascriptcore, cohttp.lwt, lwt.ppx
+
+SourceRepository master
+  Type:     git
+  Location: https://github.com/fxfactorial/ocaml-javascriptcore.git
+  Browser:  https://github.com/fxfactorial/ocaml-javascriptcore
+
+Document api
+  Title:              Documentation and API reference for JavaScriptCore
+  Type:               ocamlbuild (0.4)
+  BuildTools+:        ocamldoc
+  InstallDir:         $htmldir/javascriptcore
+  PostCommand:        cp doc/style.css api.docdir
+  XOCamlbuildPath:    doc
+  XOCamlbuildModules: src/JavaScriptCore
+  Install:            true
+  XOCamlbuildExtraArgs:
+    "-docflags '-colorize-code -charset utf-8 -hide JavaScriptCore -hide Pervasives'"

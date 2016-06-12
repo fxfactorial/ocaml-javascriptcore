@@ -4,4 +4,10 @@
 *.cmx
 *.cmxa
 *.a
-Test_program
+_build
+*.txt
+*.data
+*.log
+*.native
+api.docdir
+*.markdown

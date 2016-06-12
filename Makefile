@@ -1,44 +1,41 @@
-# -*- makefile -*-
+# OASIS_START
+# DO NOT EDIT (digest: a3c674b4239234cbbe53afe090018954)
 
-ml_headers := $(shell opam config var lib)/ocaml
-cc := $(shell which clang++)
-c_objects := jscore_stubs.o
-# Stupid hack
-ml_src_files := javaScriptCore.ml
-ml_objects_link := javaScriptCore.o
+SETUP = ocaml setup.ml
 
-ml_cc_opts := '-std=c++11 -stdlib=libstdc++'
+build: setup.data
+	$(SETUP) -build $(BUILDFLAGS)
 
-ifeq ($(shell uname),Darwin)
-	c_flags := -c -std=c++11 -Wall -I${ml_headers}
-	ml_cc_libs := '-framework JavaScriptCore -lc++'
-else
-	c_flags := -c -std=c++11 -Wall \
-	-I${ml_headers} -I/usr/include/webkitgtk-3.0
+doc: setup.data build
+	$(SETUP) -doc $(DOCFLAGS)
 
-	ml_cc_libs := '-lJavaScriptCore -lc++'
-endif
+test: setup.data build
+	$(SETUP) -test $(TESTFLAGS)
 
-ml_cc := ocamlfind ocamlopt
-ml_jsc_lib := javaScriptCore.cmxa
-test_server_pkgs := cohttp.lwt,lwt.ppx
+all:
+	$(SETUP) -all $(ALLFLAGS)
 
-exec := Test_program
+install: setup.data
+	$(SETUP) -install $(INSTALLFLAGS)
 
-%.o: %.cpp; ${cc} ${c_flags} $<
-%.cmx: %.ml; ${ml_cc} -c $<
+uninstall: setup.data
+	$(SETUP) -uninstall $(UNINSTALLFLAGS)
 
-test_server:test_server.ml ml_lib ${c_objects}
-	${ml_cc} ${ml_jsc_lib} -cc ${cc} \
-	-ccopt ${ml_cc_opts} -package \
-	${test_server_pkgs} -linkpkg \
-	$< -o ${exec}
+reinstall: setup.data
+	$(SETUP) -reinstall $(REINSTALLFLAGS)
 
-ml_lib:${c_objects} ${ml_src_files}
-	${ml_cc} -cclib ${ml_cc_libs} \
-	${c_objects} ${ml_src_files} -a -linkall \
-	-o ${ml_jsc_lib}
+clean:
+	$(SETUP) -clean $(CLEANFLAGS)
 
-.PHONY: clean
+distclean:
+	$(SETUP) -distclean $(DISTCLEANFLAGS)
 
-clean:; @rm -rf *.o *.cmx *.cmi *.cmt *.a *.cmxa ${exec}
+setup.data:
+	$(SETUP) -configure $(CONFIGUREFLAGS)
+
+configure:
+	$(SETUP) -configure $(CONFIGUREFLAGS)
+
+.PHONY: build doc test all install uninstall reinstall clean distclean configure
+
+# OASIS_STOP
