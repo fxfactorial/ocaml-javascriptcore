@@ -16,7 +16,13 @@ Library "javascriptcore"
   Path: src
   Modules: JavaScriptCore
   install: true
-  CCOpt: -g -Wall -std=c++11 -x c++
+  NativeOpt: -cc clang++
+  ByteOpt: -cc clang++
+  if system(macosx)
+    CCOpt: -g -Wall -std=c++11 -x c++
+  else
+    CCOpt: -I/usr/include/webkitgtk-3.0
+
   if system(macosx)
     CClib: -framework JavaScriptCore -lc++
   else
