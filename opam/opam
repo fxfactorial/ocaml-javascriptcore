@@ -46,3 +46,7 @@ depends: [
   "ocamlfind" {build}
 ]
 available: [ ocaml-version >= "4.03.0" ]
+messages:[
+  "Installation might fail on Linux, \
+  follow depext instructions and try again."
+]
