@@ -1,0 +1,45 @@
+# -*- conf -*-
+opam-version: "1.2"
+name: "JavaScriptCore"
+version: "0.0.1"
+maintainer: "Edgar Aroutiounian <edgar.factorial@gmail.com>"
+authors: [ "Edgar Aroutiounian <edgar.factorial@gmail.com>" ]
+license: "BSD-3-clause"
+homepage: "https://github.com/fxfactorial/ocaml-javascriptcore"
+dev-repo: "https://github.com/fxfactorial/ocaml-javascriptcore.git"
+bug-reports: "https://github.com/fxfactorial/ocaml-javascriptcore/issues"
+tags: [ "clib:javascriptcoregtk" "clib:c" "clib:BlocksRuntime"  ]
+build: [
+  ["oasis" "setup"]
+  ["ocaml" "setup.ml" "-configure" "--prefix" prefix]
+  ["ocaml" "setup.ml" "-build"]
+]
+install: ["ocaml" "setup.ml" "-install"]
+
+depexts: [
+  [["debian"] ["libblocksruntime-dev"
+               "clang-3.4"
+	       "libjavascriptcoregtk-3.0-dev"]]
+  [["ubuntu"] ["libblocksruntime-dev"
+               "clang-3.4"
+	       "libjavascriptcoregtk-3.0-dev"]]
+]
+
+remove: [
+  ["ocamlfind" "remove" "javascriptcore"]
+]
+build-test: [
+  ["oasis" "setup"]
+  ["ocaml" "setup.ml" "-configure" "--enable-tests"]
+  ["ocaml" "setup.ml" "-build"]
+  ["ocaml" "setup.ml" "-test"]
+]
+build-doc: [ "ocaml" "setup.ml" "-doc" ]
+depends: [
+  "cohttp" {build}
+  "lwt" {build & >= "2.5.2"}
+  "oasis" {build & >= "0.4"}
+  "ocamlbuild" {build}
+  "ocamlfind" {build}
+]
+available: [ ocaml-version >= "4.03.0" ]
