@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 00bc42f3ed40e94bf0ce41d610cf61e7) *)
+(* DO NOT EDIT (digest: 0b43c44510986adefc5dd00cf87d1890) *)
 module OASISGettext = struct
 (* # 22 "src/oasis/OASISGettext.ml" *)
 
@@ -848,6 +848,46 @@ let package_default =
                       A "-lBlocksRuntime";
                       A "-lc++"
                    ])
+            ]);
+          (["oasis_library_javascriptcore_byte"; "ocaml"; "link"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-g"; A "-w"; A "+a-4-40..42-44-45-48"])
+            ]);
+          (["oasis_library_javascriptcore_native"; "ocaml"; "link"; "native"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-g"; A "-w"; A "+a-4-40..42-44-45-48"])
+            ]);
+          (["oasis_library_javascriptcore_byte"; "ocaml"; "ocamldep"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-g"; A "-w"; A "+a-4-40..42-44-45-48"])
+            ]);
+          ([
+              "oasis_library_javascriptcore_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-g"; A "-w"; A "+a-4-40..42-44-45-48"])
+            ]);
+          (["oasis_library_javascriptcore_byte"; "ocaml"; "compile"; "byte"],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-g"; A "-w"; A "+a-4-40..42-44-45-48"])
+            ]);
+          ([
+              "oasis_library_javascriptcore_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [
+               (OASISExpr.EBool true,
+                 S [A "-g"; A "-w"; A "+a-4-40..42-44-45-48"])
             ])
        ];
      includes = [("tests", ["src"])]
@@ -858,7 +898,7 @@ let conf = {MyOCamlbuildFindlib.no_automatic_syntax = false}
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default conf package_default;;
 
-# 862 "myocamlbuild.ml"
+# 902 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;
 (* Hack! *)

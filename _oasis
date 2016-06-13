@@ -26,7 +26,9 @@ Library "javascriptcore"
   else
     CClib: -ljavascriptcoregtk-3.0 -lBlocksRuntime -lc++
 
-  CompiledObject:native
+  NativeOpt: -g -w +a-4-40..42-44-45-48
+  ByteOpt: -g -w +a-4-40..42-44-45-48
+  CompiledObject: native
   CSources: jsc_stubs.c
 
 Library "ppx"
