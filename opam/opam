@@ -18,10 +18,10 @@ install: ["ocaml" "setup.ml" "-install"]
 
 depexts: [
   [["debian"] ["libblocksruntime-dev"
-               "clang-3.4"
+               "clang"
 	       "libjavascriptcoregtk-3.0-dev"]]
   [["ubuntu"] ["libblocksruntime-dev"
-               "clang-3.4"
+               "clang"
 	       "libjavascriptcoregtk-3.0-dev"]]
 ]
 
