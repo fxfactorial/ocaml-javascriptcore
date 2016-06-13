@@ -1,3 +1,3 @@
 B _build/src
 PKG cohttp.lwt podge lwt.ppx compiler-libs
-PKG javascriptcore javascriptcore.ppx
+PKG javascriptcore alcotest

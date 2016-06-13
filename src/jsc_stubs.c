@@ -92,7 +92,8 @@ extern "C" {
     JSStringRef js_script =
       JSStringCreateWithUTF8CString(caml_strdup(String_val(js_string)));
 
-    bool is_correct = JSCheckScriptSyntax(context, js_script, NULL, 1, NULL);
+    bool is_correct =
+      JSCheckScriptSyntax(context, js_script, NULL, 1, NULL);
     CAMLreturn(Val_bool(is_correct));
   }
 

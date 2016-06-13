@@ -53,6 +53,14 @@ Executable test_as_server
     javascriptcore, cohttp.lwt,
     lwt.ppx (>= 2.5.2)
 
+Executable test_js_syntax
+  Path: tests
+  Build:true
+  Install: false
+  CompiledObject: native
+  MainIs:test_js_syntax.ml
+  BuildDepends: javascriptcore, alcotest
+
 SourceRepository master
   Type:     git
   Location: https://github.com/fxfactorial/ocaml-javascriptcore.git

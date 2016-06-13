@@ -43,6 +43,7 @@ depends: [
   "lwt" {build & >= "2.5.2"}
   "oasis" {build & >= "0.4"}
   "ocamlbuild" {build}
+  "alcotest" {build}
   "ocamlfind" {build}
 ]
 available: [ ocaml-version >= "4.03.0" ]
