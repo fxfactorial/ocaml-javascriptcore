@@ -11,6 +11,7 @@ OCamlVersion:  >= 4.03.0
 AlphaFeatures: ocamlbuild_more_args
 Plugins:       META (0.4), DevFiles (0.4)
 BuildTools:    ocamlbuild, ocamldoc
+Description: Control JavaScript VMs directly in your OCaml program
 
 Library "javascriptcore"
   Path: src
@@ -44,10 +45,13 @@ Library "ppx"
 
 Executable test_as_server
   Path: tests
+  Build:true
   Install: false
   CompiledObject: native
   MainIs:test_server.ml
-  BuildDepends: javascriptcore, cohttp.lwt, lwt.ppx
+  BuildDepends:
+    javascriptcore, cohttp.lwt,
+    lwt.ppx (>= 2.5.2)
 
 SourceRepository master
   Type:     git
