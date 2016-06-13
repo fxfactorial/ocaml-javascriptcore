@@ -15,17 +15,17 @@ BuildTools:    ocamlbuild, ocamldoc
 Library "javascriptcore"
   Path: src
   Modules: JavaScriptCore
-  NativeOpt: -g -w +a-4-40..42-44-45-48
-  ByteOpt: -g -w +a-4-40..42-44-45-48
   install: true
   if system(macosx)
-    CCOpt: -g -Wall -std=c11
+    CCOpt: -g -Wall -std=c++11 -x c++ -fPIC -stdlib=libc++
   else
-    CCOpt: -I/usr/include/webkitgtk-3.0
+    CCOpt: -I/usr/include/webkitgtk-3.0 -std=c++11 -x c++ -fblocks -fPIC -stdlib=libc++
+
   if system(macosx)
-    CClib: -framework JavaScriptCore
+    CClib: -framework JavaScriptCore -lc++
   else
-    CClib: -ljavascriptcoregtk-3.0
+    CClib: -ljavascriptcoregtk-3.0 -lBlocksRuntime -lc++
+
   CompiledObject:native
   CSources: jsc_stubs.c
 

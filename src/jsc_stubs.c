@@ -1,3 +1,4 @@
+/* -*- c++ -*- */
 #define CAML_NAME_SPACE
 // OCaml declarations
 #include <caml/mlvalues.h>
@@ -6,56 +7,62 @@
 #include <caml/memory.h>
 #include <caml/fail.h>
 
+#include <iostream>
+#include <string>
+
 #include <JavaScriptCore/JavaScript.h>
 
-CAMLprim value jsc_ml_make_context(value __attribute__((unused)) unit)
-{
-  return (value)JSGlobalContextCreateInGroup(NULL, NULL);
-}
+extern "C" {
 
-CAMLprim value jsc_ml_eval_script(value ctx, value js_string)
-{
-  CAMLparam2(ctx, js_string);
-  const char *const result = caml_strdup(String_val(js_string));
+  CAMLprim value jsc_ml_make_context(value __attribute__((unused)) unit)
+  {
+    return (value)JSGlobalContextCreateInGroup(NULL, NULL);
+  }
 
-  JSGlobalContextRef context = (JSGlobalContextRef)ctx;
+  CAMLprim value jsc_ml_eval_script(value ctx, value js_string)
+  {
+    CAMLparam2(ctx, js_string);
+    const char *const result = caml_strdup(String_val(js_string));
 
-  JSStringRef code = JSStringCreateWithUTF8CString(result);
+    JSGlobalContextRef context = (JSGlobalContextRef)ctx;
 
-  JSObjectRef globalObject = JSContextGetGlobalObject(context);
-  JSValueRef exception;
-  JSValueRef js_result =
-    JSEvaluateScript(context, code, globalObject, NULL, 1, &exception);
+    JSStringRef code = JSStringCreateWithUTF8CString(result);
 
-  JSStringRef result_as_string =
-    JSValueToStringCopy(context, js_result, &exception);
+    JSObjectRef globalObject = JSContextGetGlobalObject(context);
+    JSValueRef exception;
+    JSValueRef js_result =
+      JSEvaluateScript(context, code, globalObject, NULL, 1, &exception);
 
-  size_t string_len = JSStringGetMaximumUTF8CStringSize(result_as_string);
-  char *string_buffer = (char*)malloc(string_len);
-  JSStringGetUTF8CString(result_as_string, string_buffer, string_len);
-  JSStringRelease(code);
-  CAMLreturn(caml_copy_string(string_buffer));
-}
+    JSStringRef result_as_string =
+      JSValueToStringCopy(context, js_result, &exception);
 
-CAMLprim value jsc_ml_check_syntax(value ctx, value js_string)
-{
-  CAMLparam2(ctx, js_string);
-  JSContextRef context = (JSContextRef)ctx;
-  JSStringRef js_script =
-    JSStringCreateWithUTF8CString(caml_strdup(String_val(js_string)));
+    size_t string_len = JSStringGetMaximumUTF8CStringSize(result_as_string);
+    char *string_buffer = (char*)malloc(string_len);
+    JSStringGetUTF8CString(result_as_string, string_buffer, string_len);
+    JSStringRelease(code);
+    CAMLreturn(caml_copy_string(string_buffer));
+  }
 
-  bool is_correct = JSCheckScriptSyntax(context, js_script, NULL, 1, NULL);
-  CAMLreturn(Val_bool(is_correct));
-}
+  CAMLprim value jsc_ml_check_syntax(value ctx, value js_string)
+  {
+    CAMLparam2(ctx, js_string);
+    JSContextRef context = (JSContextRef)ctx;
+    JSStringRef js_script =
+      JSStringCreateWithUTF8CString(caml_strdup(String_val(js_string)));
 
-CAMLprim value jsc_ml_gc(value ctx)
-{
-  CAMLparam1(ctx);
-  JSGarbageCollect((JSContextRef)ctx);
-  CAMLreturn(Val_unit);
-}
+    bool is_correct = JSCheckScriptSyntax(context, js_script, NULL, 1, NULL);
+    CAMLreturn(Val_bool(is_correct));
+  }
 
-CAMLprim value jsc_ml_get_type(value ctx, value js_value)
-{
-  return Val_int(JSValueGetType((JSContextRef)ctx, (JSValueRef)js_value));
+  CAMLprim value jsc_ml_gc(value ctx)
+  {
+    CAMLparam1(ctx);
+    JSGarbageCollect((JSContextRef)ctx);
+    CAMLreturn(Val_unit);
+  }
+
+  CAMLprim value jsc_ml_get_type(value ctx, value js_value)
+  {
+    return Val_int(JSValueGetType((JSContextRef)ctx, (JSValueRef)js_value));
+  }
 }

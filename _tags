@@ -1,0 +1,37 @@
+# OASIS_START
+# DO NOT EDIT (digest: 42469c9749f6dcf3fd03749da143578b)
+# Ignore VCS directories, you can use the same kind of rule outside
+# OASIS_START/STOP if you want to exclude directories that contains
+# useless stuff for the build process
+true: annot, bin_annot
+<**/.svn>: -traverse
+<**/.svn>: not_hygienic
+".bzr": -traverse
+".bzr": not_hygienic
+".hg": -traverse
+".hg": not_hygienic
+".git": -traverse
+".git": not_hygienic
+"_darcs": -traverse
+"_darcs": not_hygienic
+# Library javascriptcore
+"src/javascriptcore.cmxs": use_javascriptcore
+<src/*.ml{,i,y}>: oasis_library_javascriptcore_ccopt
+"src/jsc_stubs.c": oasis_library_javascriptcore_ccopt
+"src/javascriptcore.cmxa": oasis_library_javascriptcore_cclib
+"src/libjavascriptcore_stubs.lib": oasis_library_javascriptcore_cclib
+"src/dlljavascriptcore_stubs.dll": oasis_library_javascriptcore_cclib
+"src/libjavascriptcore_stubs.a": oasis_library_javascriptcore_cclib
+"src/dlljavascriptcore_stubs.so": oasis_library_javascriptcore_cclib
+"src/javascriptcore.cmxa": use_libjavascriptcore_stubs
+# Library ppx
+"src/ppx/ppx.cmxs": use_ppx
+<src/ppx/*.ml{,i,y}>: package(compiler-libs)
+# Executable test_as_server
+"tests/test_server.native": package(cohttp.lwt)
+"tests/test_server.native": package(lwt.ppx)
+"tests/test_server.native": use_javascriptcore
+<tests/*.ml{,i,y}>: package(cohttp.lwt)
+<tests/*.ml{,i,y}>: package(lwt.ppx)
+<tests/*.ml{,i,y}>: use_javascriptcore
+# OASIS_STOP
