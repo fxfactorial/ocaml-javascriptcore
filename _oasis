@@ -13,12 +13,12 @@ Plugins:       META (0.4), DevFiles (0.4)
 BuildTools:    ocamlbuild, ocamldoc
 Description: Control JavaScript VMs directly in your OCaml program
 
-Library "javascriptcore"
+Library javascriptcore
   Path: src
   Modules: JavaScriptCore
   install: true
   if system(macosx)
-    CCOpt: -g -Wall -std=c++11 -x c++ -fPIC -stdlib=libc++
+    CCOpt: -g -Wall -std=c++11 -x c++ -fPIC -stdlib=libc++ -D_DEBUG
   else
     CCOpt: -I/usr/include/webkitgtk-3.0 -std=c++11 -x c++ -fblocks -fPIC -stdlib=libc++
 
@@ -43,12 +43,12 @@ Library "ppx"
   XMETARequires:    javascriptcore
   XMETAExtraLines:  ppx = "ppx_javascriptcore"
 
-Executable test_as_server
-  Path: tests
+Executable example_server
+  Path: examples
   Build:true
   Install: false
   CompiledObject: native
-  MainIs:test_server.ml
+  MainIs:example_server.ml
   BuildDepends:
     javascriptcore, cohttp.lwt,
     lwt.ppx (>= 2.5.2)
@@ -60,6 +60,16 @@ Executable test_js_syntax
   CompiledObject: native
   MainIs:test_js_syntax.ml
   BuildDepends: javascriptcore, alcotest
+
+Test test_js_syntax_
+  Command: $test_js_syntax
+  TestTools: test_js_syntax
+  Run: true
+
+# Test test_server_
+#   Command:$test_server
+#   TestTools:test_server
+#   Run:true
 
 SourceRepository master
   Type:     git
