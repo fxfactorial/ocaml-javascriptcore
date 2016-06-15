@@ -1,29 +1,34 @@
 let gc_pressure_1 () =
-  let mini_func () = 
-    ignore (new JavaScriptCore.vm)
-  in
+  let mini_func () = ignore (new JavaScriptCore.vm) in
   mini_func ();
   Gc.major ()
 
 let gc_pressure_2 () =
-  let js_vm = new JavaScriptCore.vm in
+  let mini_func () =
+    let js_vm = new JavaScriptCore.vm in
+    js_vm#evaluate_script {|
+const first = "Hello";
+const second = " World";
+first + second
+|} |> ignore
+  in
+  mini_func ();
+  Gc.major ()
 
-  ()
-  (* let js_code = "const a = 1 + 2;" in *)
-  (* Alcotest.(check bool) *)
-  (*   (Printf.sprintf "Checking syntax of JS code: %s" js_code) true *)
-  (*   (js_vm#check_syntax js_code) *)
+let () =
+  gc_pressure_2 ()
+
 
 let test_set_one = [
   ("\xF0\x9F\x90\xAB", `Quick, gc_pressure_1);
 ]
 
 let test_set_two = [
-  ("\xF0\x9F\x90\xAB", `Quick, gc_pressure_2)
+  ("\xF0\x9F\x90\xAB", `Slow, gc_pressure_2)
 ]
 
 let () =
-  Alcotest.run "GC Pressure testing" [
-    ("Create gc'ed VM, force gc", test_set_one);
-    (* ("plain assignment of numbers", test_set_two) *)
+  Alcotest.run "GC Pressure" [
+    ("Create one VM, then force gc", test_set_one);
+    ("Evaluate Script, then force gc", test_set_two)
   ]

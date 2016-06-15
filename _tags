@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: dbc9b21c8717c83dc33838b0104f3520)
+# DO NOT EDIT (digest: 9be161ce093227ae9d13374bf0be6ef2)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -43,6 +43,12 @@ true: annot, bin_annot
 # Executable test_js_syntax
 "tests/test_js_syntax.native": package(alcotest)
 "tests/test_js_syntax.native": use_javascriptcore
+# Executable test_gc_pressure
+"tests/test_gc_pressure.native": package(alcotest)
+"tests/test_gc_pressure.native": use_javascriptcore
+# Executable test_eval_scripts
+"tests/test_eval_scripts.native": package(alcotest)
+"tests/test_eval_scripts.native": use_javascriptcore
 <tests/*.ml{,i,y}>: package(alcotest)
 <tests/*.ml{,i,y}>: use_javascriptcore
 # OASIS_STOP

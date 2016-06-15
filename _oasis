@@ -69,6 +69,19 @@ Executable test_gc_pressure
   MainIs:test_gc_pressure.ml
   BuildDepends: javascriptcore, alcotest
 
+Executable test_eval_scripts
+  Path: tests
+  Build:true
+  Install: false
+  CompiledObject: native
+  MainIs:test_eval_scripts.ml
+  BuildDepends: javascriptcore, alcotest
+
+Test test_eval_scripts_
+  Command: $test_eval_scripts
+  TestTools: test_eval_scripts
+  Run: true
+
 Test test_js_syntax_
   Command: $test_js_syntax
   TestTools: test_js_syntax
