@@ -44,14 +44,15 @@ const std::string current_date_time()
   std::cout << "\033[1;33m[" \
   << current_date_time () \
   << "]\036" << " \033[1;36m[" \
-  <<  __PRETTY_FUNCTION__ << "]\033[0m : " \
+  <<  __PRETTY_FUNCTION__ << "]\033[0m: " \
   << s << "\n"
 #endif
 
 #define JSContext_group_val(v) \
   (*((JSContextGroupRef*)Data_custom_val(v)))
 
-#define JSVirtual_machine_val(v) (*((JSGlobalContextRef*)Data_custom_val(v)))
+#define JSVirtual_machine_val(v) \
+  (*((JSGlobalContextRef*)Data_custom_val(v)))
 
 #define JSString_val(v) (*((JSStringRef*)Data_custom_val(v)))
 
@@ -70,6 +71,7 @@ const std::string current_date_time()
 static void
 jsc_ml_vm_finalize(value ctx)
 {
+  DEBUG("Calling release for JS Virtual Machine");
   return JSGlobalContextRelease(JSVirtual_machine_val(ctx));
 }
 

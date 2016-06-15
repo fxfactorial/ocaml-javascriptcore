@@ -61,15 +61,23 @@ Executable test_js_syntax
   MainIs:test_js_syntax.ml
   BuildDepends: javascriptcore, alcotest
 
+Executable test_gc_pressure
+  Path: tests
+  Build:true
+  Install: false
+  CompiledObject: native
+  MainIs:test_gc_pressure.ml
+  BuildDepends: javascriptcore, alcotest
+
 Test test_js_syntax_
   Command: $test_js_syntax
   TestTools: test_js_syntax
   Run: true
 
-# Test test_server_
-#   Command:$test_server
-#   TestTools:test_server
-#   Run:true
+Test test_gc_pressure_
+  Command:$test_gc_pressure
+  TestTools:test_gc_pressure
+  Run:true
 
 SourceRepository master
   Type:     git
