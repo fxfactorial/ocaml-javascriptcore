@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 9be161ce093227ae9d13374bf0be6ef2)
+# DO NOT EDIT (digest: add8d213c83a5f49c52301aac878bb94)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -17,19 +17,22 @@ true: annot, bin_annot
 # Library javascriptcore
 "src/javascriptcore.cmxs": use_javascriptcore
 <src/*.ml{,i,y}>: oasis_library_javascriptcore_ccopt
+"src/jsc_ml_values.c": oasis_library_javascriptcore_ccopt
 "src/jsc_stubs.c": oasis_library_javascriptcore_ccopt
-"src/javascriptcore.cmxa": oasis_library_javascriptcore_cclib
+<src/javascriptcore.{cma,cmxa}>: oasis_library_javascriptcore_cclib
 "src/libjavascriptcore_stubs.lib": oasis_library_javascriptcore_cclib
 "src/dlljavascriptcore_stubs.dll": oasis_library_javascriptcore_cclib
 "src/libjavascriptcore_stubs.a": oasis_library_javascriptcore_cclib
 "src/dlljavascriptcore_stubs.so": oasis_library_javascriptcore_cclib
-"src/javascriptcore.cmxa": oasis_library_javascriptcore_byte
+<src/javascriptcore.{cma,cmxa}>: oasis_library_javascriptcore_byte
 <src/*.ml{,i,y}>: oasis_library_javascriptcore_byte
+"src/jsc_ml_values.c": oasis_library_javascriptcore_byte
 "src/jsc_stubs.c": oasis_library_javascriptcore_byte
-"src/javascriptcore.cmxa": oasis_library_javascriptcore_native
+<src/javascriptcore.{cma,cmxa}>: oasis_library_javascriptcore_native
 <src/*.ml{,i,y}>: oasis_library_javascriptcore_native
+"src/jsc_ml_values.c": oasis_library_javascriptcore_native
 "src/jsc_stubs.c": oasis_library_javascriptcore_native
-"src/javascriptcore.cmxa": use_libjavascriptcore_stubs
+<src/javascriptcore.{cma,cmxa}>: use_libjavascriptcore_stubs
 # Library ppx
 "src/ppx/ppx.cmxs": use_ppx
 <src/ppx/*.ml{,i,y}>: package(compiler-libs)
@@ -49,6 +52,9 @@ true: annot, bin_annot
 # Executable test_eval_scripts
 "tests/test_eval_scripts.native": package(alcotest)
 "tests/test_eval_scripts.native": use_javascriptcore
+# Executable test_strings
+"tests/test_strings.native": package(alcotest)
+"tests/test_strings.native": use_javascriptcore
 <tests/*.ml{,i,y}>: package(alcotest)
 <tests/*.ml{,i,y}>: use_javascriptcore
 # OASIS_STOP

@@ -15,10 +15,6 @@ first + second
   mini_func ();
   Gc.major ()
 
-let () =
-  gc_pressure_2 ()
-
-
 let test_set_one = [
   ("\xF0\x9F\x90\xAB", `Quick, gc_pressure_1);
 ]

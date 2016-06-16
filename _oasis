@@ -29,10 +29,9 @@ Library javascriptcore
 
   NativeOpt: -g -w +a-4-40..42-44-45-48
   ByteOpt: -g -w +a-4-40..42-44-45-48
-  CompiledObject: native
-  CSources: jsc_stubs.c
+  CSources: jsc_ml_values.h, jsc_ml_values.c, jsc_stubs.c
 
-Library "ppx"
+Library ppx
   FindlibName: ppx
   FindlibParent: javascriptcore
   Path: src/ppx
@@ -80,6 +79,19 @@ Executable test_eval_scripts
 Test test_eval_scripts_
   Command: $test_eval_scripts
   TestTools: test_eval_scripts
+  Run: true
+
+Executable test_strings
+  Path: tests
+  Build:true
+  Install: false
+  CompiledObject: native
+  MainIs:test_strings.ml
+  BuildDepends: javascriptcore, alcotest
+
+Test test_strings_
+  Command: $test_strings
+  TestTools: test_strings
   Run: true
 
 Test test_js_syntax_

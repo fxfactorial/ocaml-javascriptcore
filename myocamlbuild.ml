@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: fd8757a4be8317ef5c476c1c678e6403) *)
+(* DO NOT EDIT (digest: 229521af4266a84fc7e615a2511cf3b6) *)
 module OASISGettext = struct
 (* # 22 "src/oasis/OASISGettext.ml" *)
 
@@ -769,7 +769,7 @@ let package_default =
   {
      MyOCamlbuildBase.lib_ocaml =
        [("javascriptcore", ["src"], []); ("ppx", ["src/ppx"], [])];
-     lib_c = [("javascriptcore", "src", [])];
+     lib_c = [("javascriptcore", "src", ["src/jsc_ml_values.h"])];
      flags =
        [
           (["oasis_library_javascriptcore_ccopt"; "compile"],
@@ -903,5 +903,6 @@ let dispatch_default = MyOCamlbuildBase.dispatch_default conf package_default;;
 # 904 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;
+
 (* Hack! *)
-let () = flag ["c"; "compile"] (S [A "-cc"; A "clang++"])
+let () = flag ["c"; "compile"] (S [A "-cc"; A "clang"; A "-ccopt"; A "-x c++"])
