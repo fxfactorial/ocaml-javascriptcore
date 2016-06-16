@@ -905,4 +905,11 @@ let dispatch_default = MyOCamlbuildBase.dispatch_default conf package_default;;
 Ocamlbuild_plugin.dispatch dispatch_default;;
 
 (* Hack! *)
-let () = flag ["c"; "compile"] (S [A "-cc"; A "clang"; A "-ccopt"; A "-x c++"])
+let () =
+  flag ["c"; "compile"]
+    (S ([A "-cc"; A "clang"; A "-ccopt"; A "-x c++"] @
+        (try Sys.getenv "JSC_ML_DEBUG"
+             |> ignore;
+           [A "-ccopt"; A "-D_DEBUG"]
+         with Not_found -> [])
+       ))

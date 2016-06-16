@@ -11,14 +11,14 @@ OCamlVersion:  >= 4.03.0
 AlphaFeatures: ocamlbuild_more_args
 Plugins:       META (0.4), DevFiles (0.4)
 BuildTools:    ocamlbuild, ocamldoc
-Description: Control JavaScript VMs directly in your OCaml program
+Description: Create, Control, Execute JavaScript values directly in OCaml. 
 
 Library javascriptcore
   Path: src
   Modules: JavaScriptCore
   install: true
   if system(macosx)
-    CCOpt: -g -Wall -std=c++11 -x c++ -fPIC -stdlib=libc++ -D_DEBUG
+    CCOpt: -g -Wall -std=c++11 -x c++ -fPIC -stdlib=libc++
   else
     CCOpt: -I/usr/include/webkitgtk-3.0 -std=c++11 -x c++ -fblocks -fPIC -stdlib=libc++
 
