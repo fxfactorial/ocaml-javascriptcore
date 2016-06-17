@@ -17,9 +17,7 @@ module Raw_calls = struct
   external make_js_string : unit -> js_ptr = "jsc_ml_make_string"
   external release_js_string : js_ptr -> unit = "jsc_ml_release_jsc_string"
   external retain_js_string : js_ptr -> unit = "jsc_ml_retain_jsc_string"
-
   external length_js_string : js_ptr -> int = "jsc_ml_jsc_length"
-
 end
 
 class vm = object

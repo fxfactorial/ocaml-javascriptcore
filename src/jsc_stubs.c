@@ -30,9 +30,10 @@ extern "C" {
   CAMLprim value
   jsc_ml_make_vm(value __attribute__((unused)) unit)
   {
-    DEBUG("Creating a JSC Global Context, aka a Virtual Machine");
     CAMLparam0();
     CAMLlocal1(jsc_ml_ctx);
+    DEBUG("Creating a JSC Global Context, aka a Virtual Machine");
+
     JSGlobalContextRef ctx = JSGlobalContextCreateInGroup(NULL, NULL);
 
     jsc_ml_ctx =
@@ -45,9 +46,9 @@ extern "C" {
   CAMLprim value
   jsc_ml_eval_script(value ctx, value js_string)
   {
-    DEBUG("Evaling a script");
     CAMLparam2(ctx, js_string);
     CAMLlocal1(string_buf);
+    DEBUG("Evaling a script");
 
     JSGlobalContextRef context = JSVirtual_machine_val(ctx);
 
@@ -72,8 +73,9 @@ extern "C" {
   CAMLprim value
   jsc_ml_check_syntax(value ctx, value js_string)
   {
-    DEBUG("Checking syntax of a script");
     CAMLparam2(ctx, js_string);
+    DEBUG("Checking syntax of a script");
+
     JSContextRef context = JSVirtual_machine_val(ctx);
     JSStringRef js_script =
       JSStringCreateWithUTF8CString(caml_strdup(String_val(js_string)));
@@ -86,8 +88,9 @@ extern "C" {
   CAMLprim value
   jsc_ml_garbage_collect(value ctx)
   {
-    DEBUG("Garbage Collecting");
     CAMLparam1(ctx);
+    DEBUG("Garbage Collecting");
+
     JSGarbageCollect(JSVirtual_machine_val(ctx));
     CAMLreturn(Val_unit);
   }
@@ -95,9 +98,13 @@ extern "C" {
   CAMLprim value
   jsc_ml_make_string_with_ml_str(value ml_string)
   {
-    DEBUG("Creating JSStringRef from OCaml String");
     CAMLparam1(ml_string);
-    CAMLreturn(Val_jsc_string(ml_string_to_jsc_string(ml_string)));
+    CAMLlocal1(ml_abstract);
+    DEBUG("Creating JSStringRef from OCaml String");
+
+    ml_abstract = caml_alloc(1, Abstract_tag);
+    Store_field(ml_abstract, 0, (value)ml_string_to_jsc_string(ml_string));
+    CAMLreturn(ml_abstract);
   }
 
   CAMLprim value
@@ -109,8 +116,9 @@ extern "C" {
   CAMLprim value
   jsc_ml_retain_jsc_string(value jsc_string)
   {
-    DEBUG("Calling Retain on JSC String");
     CAMLparam1(jsc_string);
+    DEBUG("Calling Retain on JSC String");
+
     JSStringRetain(JSString_val(jsc_string));
     CAMLreturn(Val_unit);
   }
@@ -118,8 +126,9 @@ extern "C" {
   CAMLprim value
   jsc_ml_release_jsc_string(value jsc_string)
   {
-    DEBUG("Calling Release on JSC String");
     CAMLparam1(jsc_string);
+    DEBUG("Calling Release on JSC String");
+
     JSStringRelease(JSString_val(jsc_string));
     CAMLreturn(Val_unit);
   }
@@ -127,8 +136,9 @@ extern "C" {
   CAMLprim value
   jsc_ml_jsc_length(value jsc_string)
   {
-    DEBUG("Getting JSC String length");
     CAMLparam1(jsc_string);
+    DEBUG("Getting JSC String length");
+
     CAMLreturn(Val_int(JSStringGetLength(JSString_val(jsc_string))));
   }
 

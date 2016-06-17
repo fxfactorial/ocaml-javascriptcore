@@ -40,9 +40,7 @@ const std::string current_date_time();
 #define JSVirtual_machine_val(v)		\
   (*((JSGlobalContextRef*)Data_custom_val(v)))
 
-#define JSString_val(v) (JSStringRef)v
-#define JSClass_val(v) (JSClassRef)v
-#define Val_jsc_string(v) (value)v
+#define JSString_val(v) (JSStringRef)Field(v, 0)
 
 extern struct custom_operations jsc_context_ops;
 value jsc_string_to_ml(JSStringRef);
