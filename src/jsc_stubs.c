@@ -161,4 +161,24 @@ extern "C" {
     CAMLreturn(Val_unit);
   }
 
+  CAMLprim value
+  jsc_ml_set_context_name(value context_value, value new_context_name)
+  {
+    CAMLparam2(context_value, new_context_name);
+    JSGlobalContextSetName(JSVirtual_machine_val(context_value),
+			   ml_string_to_jsc_string(new_context_name));
+    CAMLreturn(Val_unit);
+  }
+
+  CAMLprim value
+  jsc_ml_get_context_name(value context_value)
+  {
+    CAMLparam1(context_value);
+
+    CAMLreturn(
+	       jsc_string_to_ml(
+				JSGlobalContextCopyName(
+							JSVirtual_machine_val(context_value))));
+  }
+
 }
