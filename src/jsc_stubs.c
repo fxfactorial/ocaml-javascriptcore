@@ -102,15 +102,9 @@ extern "C" {
     CAMLlocal1(ml_abstract);
     DEBUG("Creating JSStringRef from OCaml String");
 
-    ml_abstract = caml_alloc(1, Abstract_tag);
+    ml_abstract = caml_alloc(sizeof(JSStringRef), Abstract_tag);
     Store_field(ml_abstract, 0, (value)ml_string_to_jsc_string(ml_string));
     CAMLreturn(ml_abstract);
-  }
-
-  CAMLprim value
-  jsc_ml_make_string(value __attribute__((unused)) unit)
-  {
-    return Val_unit;
   }
 
   CAMLprim value
@@ -140,6 +134,31 @@ extern "C" {
     DEBUG("Getting JSC String length");
 
     CAMLreturn(Val_int(JSStringGetLength(JSString_val(jsc_string))));
+  }
+
+  CAMLprim value
+  jsc_ml_make_context_group(value __attribute__((unused)) unit)
+  {
+    CAMLlocal1(jsc_ml_context_group);
+    jsc_ml_context_group = caml_alloc(sizeof(JSContextGroupRef), Abstract_tag);
+    Store_field(jsc_ml_context_group, 0, (value)JSContextGroupCreate());
+    return jsc_ml_context_group;
+  }
+
+  CAMLprim value
+  jsc_ml_retain_context_group(value context_group)
+  {
+    CAMLparam1(context_group);
+    JSContextGroupRetain(JSContext_group_val(context_group));
+    CAMLreturn(Val_unit);
+  }
+
+  CAMLprim value
+  jsc_ml_release_context_group(value context_group)
+  {
+    CAMLparam1(context_group);
+    JSContextGroupRelease(JSContext_group_val(context_group));
+    CAMLreturn(Val_unit);
   }
 
 }

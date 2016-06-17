@@ -1,7 +1,7 @@
 let string_test_1 () =
   let ml_string = "Hello World" in
   let s =
-    new JavaScriptCore.js_string ~ml_string ()
+    new JavaScriptCore.js_string ~ml_string
   in
   let msg =
     "Checking length of created JavaScriptCore string"

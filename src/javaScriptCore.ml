@@ -14,38 +14,41 @@ module Raw_calls = struct
     virtual_machine -> unit = "jsc_ml_garbage_collect"
   external make_js_string_with_ml_string :
     string -> js_ptr = "jsc_ml_make_string_with_ml_str"
-  external make_js_string : unit -> js_ptr = "jsc_ml_make_string"
-  external release_js_string : js_ptr -> unit = "jsc_ml_release_jsc_string"
-  external retain_js_string : js_ptr -> unit = "jsc_ml_retain_jsc_string"
+  external release_js_string
+    : js_ptr -> unit = "jsc_ml_release_jsc_string" [@@noalloc]
+  external retain_js_string
+    : js_ptr -> unit = "jsc_ml_retain_jsc_string" [@@noalloc]
   external length_js_string : js_ptr -> int = "jsc_ml_jsc_length"
+  external make_jsc_context_group : unit -> js_ptr = "jsc_ml_make_context_group"
+  external retain_js_context_group :
+    js_ptr -> unit = "jsc_ml_retain_context_group" [@@noalloc]
+  external release_js_context_group
+    : js_ptr -> unit = "jsc_ml_release_context_group" [@@noalloc]
 end
 
 class vm = object
   val vm_ = Raw_calls.make_vm ()
   method evaluate_script src = Raw_calls.evaluate_script vm_ src
-  method gc = Raw_calls.garbage_collect vm_
+  method garbage_collect = Raw_calls.garbage_collect vm_
   method check_syntax src = Raw_calls.check_script_syntax vm_ src
 end
 
-class virtual js_value = object
-
+class virtual js_ref = object
   method virtual retain : unit
   method virtual release : unit
-
 end
 
-class js_string ?ml_string () = object
-
-  inherit js_value
-
-  val raw_ptr = match ml_string with
-      None -> Raw_calls.make_js_string ()
-    | Some s -> Raw_calls.make_js_string_with_ml_string s
-
+class js_string ~ml_string = object
+  inherit js_ref
+  val raw_ptr = Raw_calls.make_js_string_with_ml_string ml_string
   method retain = Raw_calls.retain_js_string raw_ptr
-
   method release = Raw_calls.release_js_string raw_ptr
-
   method length = Raw_calls.length_js_string raw_ptr
+end
 
+class context_group = object
+  inherit js_ref
+  val raw_ptr = Raw_calls.make_jsc_context_group ()
+  method retain = Raw_calls.retain_js_context_group raw_ptr
+  method release = Raw_calls.release_js_context_group raw_ptr
 end
