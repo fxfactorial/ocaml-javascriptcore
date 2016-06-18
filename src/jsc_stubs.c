@@ -139,16 +139,21 @@ extern "C" {
   CAMLprim value
   jsc_ml_make_context_group(value __attribute__((unused)) unit)
   {
+    CAMLparam0();
     CAMLlocal1(jsc_ml_context_group);
+    DEBUG("Making a JSContextGroup");
+
     jsc_ml_context_group = caml_alloc(sizeof(JSContextGroupRef), Abstract_tag);
     Store_field(jsc_ml_context_group, 0, (value)JSContextGroupCreate());
-    return jsc_ml_context_group;
+    CAMLreturn(jsc_ml_context_group);
   }
 
   CAMLprim value
   jsc_ml_retain_context_group(value context_group)
   {
     CAMLparam1(context_group);
+    DEBUG("Retaining called JSContextGroup");
+
     JSContextGroupRetain(JSContext_group_val(context_group));
     CAMLreturn(Val_unit);
   }
@@ -157,6 +162,8 @@ extern "C" {
   jsc_ml_release_context_group(value context_group)
   {
     CAMLparam1(context_group);
+    DEBUG("Release called JSContextGroup");
+
     JSContextGroupRelease(JSContext_group_val(context_group));
     CAMLreturn(Val_unit);
   }
@@ -165,6 +172,8 @@ extern "C" {
   jsc_ml_set_context_name(value context_value, value new_context_name)
   {
     CAMLparam2(context_value, new_context_name);
+    DEBUG("Setting Context Name");
+
     JSGlobalContextSetName(JSVirtual_machine_val(context_value),
 			   ml_string_to_jsc_string(new_context_name));
     CAMLreturn(Val_unit);
@@ -174,11 +183,9 @@ extern "C" {
   jsc_ml_get_context_name(value context_value)
   {
     CAMLparam1(context_value);
+    DEBUG("Getting Context Name");
 
-    CAMLreturn(
-	       jsc_string_to_ml(
-				JSGlobalContextCopyName(
-							JSVirtual_machine_val(context_value))));
+    CAMLreturn(jsc_string_to_ml(JSGlobalContextCopyName(JSVirtual_machine_val(context_value))));
   }
 
 }

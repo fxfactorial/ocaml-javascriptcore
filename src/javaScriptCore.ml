@@ -1,17 +1,18 @@
-(** A JavaScript execution context. Holds the global object and
-    other execution state. *)
-type virtual_machine
+(** These are high level bindings to JavaScriptcore. The
+    virtual_machine object is garbage collected by the OCaml runtime
+    and anything that inherits from js_ref will call release when
+    garbage collected by the OCaml runtime *)
 
 module Raw_calls = struct
   type js_ptr
   external make_vm :
-    unit -> virtual_machine = "jsc_ml_make_vm"
+    unit -> js_ptr = "jsc_ml_make_vm"
   external evaluate_script :
-    virtual_machine -> string -> string = "jsc_ml_eval_script"
+    js_ptr -> string -> string = "jsc_ml_eval_script"
   external check_script_syntax :
-    virtual_machine -> string -> bool = "jsc_ml_check_syntax"
+    js_ptr -> string -> bool = "jsc_ml_check_syntax"
   external garbage_collect :
-    virtual_machine -> unit = "jsc_ml_garbage_collect"
+    js_ptr -> unit = "jsc_ml_garbage_collect"
   external make_js_string_with_ml_string :
     string -> js_ptr = "jsc_ml_make_string_with_ml_str"
   external release_js_string
@@ -28,21 +29,29 @@ module Raw_calls = struct
   external get_vm_context_name : js_ptr -> string = "jsc_ml_get_context_name"
 end
 
-class vm = object
-  val vm_ = Raw_calls.make_vm ()
-  method evaluate_script src = Raw_calls.evaluate_script vm_ src
-  method garbage_collect = Raw_calls.garbage_collect vm_
-  method check_syntax src = Raw_calls.check_script_syntax vm_ src
-  method set_context_name name = Raw_calls.set_vm_context_name name
-
+(** A JavaScript execution context. Holds the global object and
+    other execution state. *)
+class virtual_machine ?named () = object(self)
+  val raw_ptr = Raw_calls.make_vm ()
+  initializer
+    match named with None -> self#set_name "" | Some s -> self#set_name s
+  method evaluate_script src = Raw_calls.evaluate_script raw_ptr src
+  method garbage_collect = Raw_calls.garbage_collect raw_ptr
+  method check_syntax src = Raw_calls.check_script_syntax raw_ptr src
+  method set_name name = Raw_calls.set_vm_context_name raw_ptr name
+  method name = Raw_calls.get_vm_context_name raw_ptr
 end
 
-class virtual js_ref = object
+class virtual js_ref = object(self)
+  val virtual raw_ptr : Raw_calls.js_ptr
+  initializer
+    Gc.finalise (fun instance -> instance#release) self
   method virtual retain : unit
   method virtual release : unit
 end
 
-class js_string ~ml_string = object
+(** A JavaScript String *)
+class js_string ~ml_string = object(self)
   inherit js_ref
   val raw_ptr = Raw_calls.make_js_string_with_ml_string ml_string
   method retain = Raw_calls.retain_js_string raw_ptr
@@ -50,6 +59,7 @@ class js_string ~ml_string = object
   method length = Raw_calls.length_js_string raw_ptr
 end
 
+(** A JavaScript Context Group *)
 class context_group = object
   inherit js_ref
   val raw_ptr = Raw_calls.make_jsc_context_group ()
