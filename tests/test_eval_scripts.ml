@@ -1,5 +1,5 @@
 let eval_script_one () =
-  let js_vm = new JavaScriptCore.vm in
+  let js_vm = new JavaScriptCore.virtual_machine () in
   Alcotest.(check string)
     (Printf.sprintf "Evaling script") "Hello World"
     (js_vm#evaluate_script {|

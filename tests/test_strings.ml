@@ -6,7 +6,8 @@ let string_test_1 () =
   let msg =
     "Checking length of created JavaScriptCore string"
   in
-  Alcotest.(check int) msg (String.length ml_string) s#length
+  Alcotest.(check int) msg (String.length ml_string) s#length;
+  s#release
 
 (* Think of this like a set of tests for this particular
    functionality *)

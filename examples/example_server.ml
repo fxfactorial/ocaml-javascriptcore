@@ -9,7 +9,7 @@ let () =
   let reactjs_src =
     open_in "static/react.min.js" |> exhaust |> String.concat ""
   in
-  let js_vm = new JavaScriptCore.vm in
+  let js_vm = new JavaScriptCore.virtual_machine () in
 
   if not (js_vm#evaluate_script reactjs_src |> bool_of_string)
   then raise (Failure "Couldn't load JavaScript");
