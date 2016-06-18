@@ -51,7 +51,7 @@ class virtual js_ref = object(self)
 end
 
 (** A JavaScript String *)
-class js_string ~ml_string = object(self)
+class js_string ~ml_string = object
   inherit js_ref
   val raw_ptr = Raw_calls.make_js_string_with_ml_string ml_string
   method retain = Raw_calls.retain_js_string raw_ptr
@@ -66,3 +66,11 @@ class context_group = object
   method retain = Raw_calls.retain_js_context_group raw_ptr
   method release = Raw_calls.release_js_context_group raw_ptr
 end
+
+(* Ideally if oasis could let PreBuildCommand: work in Library, then
+   could use cppo and do: cppo -D JSC_NODE_ML javaScriptCore.ml -o
+   javaScriptCore.ml *)
+
+(* #ifdef JSC_NODE_ML *)
+module Node = Node_impl
+(* #endif *)

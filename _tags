@@ -58,3 +58,4 @@ true: annot, bin_annot
 <tests/*.ml{,i,y}>: package(alcotest)
 <tests/*.ml{,i,y}>: use_javascriptcore
 # OASIS_STOP
+true: no_alias_deps

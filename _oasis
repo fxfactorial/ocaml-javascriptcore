@@ -36,11 +36,17 @@ Library ppx
   FindlibParent: javascriptcore
   Path: src/ppx
   Modules: Ppx_jsc
-  CompiledObject: native
   BuildDepends: compiler-libs
   XMETADescription: New-style (ppx) syntax extension
   XMETARequires:    javascriptcore
   XMETAExtraLines:  ppx = "ppx_javascriptcore"
+
+Library node
+  FindlibName: node
+  FindlibParent: javascriptcore
+  Path: src/nodejs_impl
+  Modules: Node_impl
+  BuildDepends: javascriptcore
 
 Executable example_server
   Path: examples
