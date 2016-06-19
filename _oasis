@@ -42,67 +42,67 @@ Library ppx
   XMETARequires:    javascriptcore
   XMETAExtraLines:  ppx = "ppx_javascriptcore"
 
-Executable example_server
-  Path: examples
-  Build:true
-  Install: false
-  CompiledObject: native
-  MainIs:example_server.ml
-  BuildDepends:
-    javascriptcore, cohttp.lwt,
-    lwt.ppx (>= 2.5.2)
+# Executable example_server
+#   Path: examples
+#   Build:true
+#   Install: false
+#   CompiledObject: native
+#   MainIs:example_server.ml
+#   BuildDepends:
+#     javascriptcore, cohttp.lwt,
+#     lwt.ppx (>= 2.5.2)
 
-Executable test_js_syntax
-  Path: tests
-  Build:true
-  Install: false
-  CompiledObject: native
-  MainIs:test_js_syntax.ml
-  BuildDepends: javascriptcore, alcotest
+# Executable test_js_syntax
+#   Path: tests
+#   Build:true
+#   Install: false
+#   CompiledObject: native
+#   MainIs:test_js_syntax.ml
+#   BuildDepends: javascriptcore, alcotest
 
-Executable test_gc_pressure
-  Path: tests
-  Build:true
-  Install: false
-  CompiledObject: native
-  MainIs:test_gc_pressure.ml
-  BuildDepends: javascriptcore, alcotest
+# Executable test_gc_pressure
+#   Path: tests
+#   Build:true
+#   Install: false
+#   CompiledObject: native
+#   MainIs:test_gc_pressure.ml
+#   BuildDepends: javascriptcore, alcotest
 
-Executable test_eval_scripts
-  Path: tests
-  Build:true
-  Install: false
-  CompiledObject: native
-  MainIs:test_eval_scripts.ml
-  BuildDepends: javascriptcore, alcotest
+# Executable test_eval_scripts
+#   Path: tests
+#   Build:true
+#   Install: false
+#   CompiledObject: native
+#   MainIs:test_eval_scripts.ml
+#   BuildDepends: javascriptcore, alcotest
 
-Test test_eval_scripts_
-  Command: $test_eval_scripts
-  TestTools: test_eval_scripts
-  Run: true
+# Executable test_strings
+#   Path: tests
+#   Build:true
+#   Install: false
+#   CompiledObject: native
+#   MainIs:test_strings.ml
+#   BuildDepends: javascriptcore, alcotest
 
-Executable test_strings
-  Path: tests
-  Build:true
-  Install: false
-  CompiledObject: native
-  MainIs:test_strings.ml
-  BuildDepends: javascriptcore, alcotest
+# Test test_eval_scripts_
+#   Command: $test_eval_scripts
+#   TestTools: test_eval_scripts
+#   Run: true
 
-Test test_strings_
-  Command: $test_strings
-  TestTools: test_strings
-  Run: true
+# Test test_strings_
+#   Command: $test_strings
+#   TestTools: test_strings
+#   Run: true
 
-Test test_js_syntax_
-  Command: $test_js_syntax
-  TestTools: test_js_syntax
-  Run: true
+# Test test_js_syntax_
+#   Command: $test_js_syntax
+#   TestTools: test_js_syntax
+#   Run: true
 
-Test test_gc_pressure_
-  Command:$test_gc_pressure
-  TestTools:test_gc_pressure
-  Run:true
+# Test test_gc_pressure_
+#   Command:$test_gc_pressure
+#   TestTools:test_gc_pressure
+#   Run:true
 
 SourceRepository master
   Type:     git

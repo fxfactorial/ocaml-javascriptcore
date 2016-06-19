@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: add8d213c83a5f49c52301aac878bb94)
+# DO NOT EDIT (digest: 11db409630bf14ca4903561c4017e25f)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -43,18 +43,4 @@ true: annot, bin_annot
 <examples/*.ml{,i,y}>: package(cohttp.lwt)
 <examples/*.ml{,i,y}>: package(lwt.ppx)
 <examples/*.ml{,i,y}>: use_javascriptcore
-# Executable test_js_syntax
-"tests/test_js_syntax.native": package(alcotest)
-"tests/test_js_syntax.native": use_javascriptcore
-# Executable test_gc_pressure
-"tests/test_gc_pressure.native": package(alcotest)
-"tests/test_gc_pressure.native": use_javascriptcore
-# Executable test_eval_scripts
-"tests/test_eval_scripts.native": package(alcotest)
-"tests/test_eval_scripts.native": use_javascriptcore
-# Executable test_strings
-"tests/test_strings.native": package(alcotest)
-"tests/test_strings.native": use_javascriptcore
-<tests/*.ml{,i,y}>: package(alcotest)
-<tests/*.ml{,i,y}>: use_javascriptcore
 # OASIS_STOP
