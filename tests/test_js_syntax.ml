@@ -1,10 +1,10 @@
 let break_keyword () =
-  let js_vm = new JavaScriptCore.virtual_machine () in
+  let js_vm = new JavaScriptCore.Objects.virtual_machine () in
   let msg = Printf.sprintf "Checking syntax of JS code: %s" "break" in
   Alcotest.(check bool) msg false (js_vm#check_syntax "break")
 
 let simple_assignment () =
-  let js_vm = new JavaScriptCore.virtual_machine () in
+  let js_vm = new JavaScriptCore.Objects.virtual_machine () in
   let js_code = "const a = 1 + 2;" in
   Alcotest.(check bool)
     (Printf.sprintf "Checking syntax of JS code: %s" js_code) true

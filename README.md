@@ -50,9 +50,13 @@ An example `utop` session:
 ─( 16:02:44 )─< command 0 >─────────────────{ counter: 0 }─
 utop # #require "javascriptcore";;
 ─( 16:02:44 )─< command 1 >─────────────────{ counter: 0 }─
-utop # let s = new JavaScriptCore.js_string ~ml_string:"Hello World" ();;
+utop # let s = new JavaScriptCore.Objects.js_string ~ml_string:"Hello World" ();;
 [2016-06-16.16:02:47] [value jsc_ml_make_string_with_ml_str(value)]: Creating JSStringRef from OCaml String
-val s : JavaScriptCore.js_string = <obj>
+val s : JavaScriptCore.Objects.js_string = <obj>
+─( 16:02:55 )─< command 2 >─────────────────{ counter: 0 }─
+utop # s#length;;
+[2016-06-16.16:02:55] [value jsc_ml_jsc_length(value)]: Getting JSC String length
+- : int = 11
 ```
 
 # Backing 
