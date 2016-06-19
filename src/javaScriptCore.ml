@@ -53,23 +53,28 @@ and Types : sig
   type date_opt_t = [`Date_string of string
                     | `Date_opts of date_opt]
 
+  type 'a js_ref = <unsafe_ptr_value: js_ptr; .. > as 'a
+
 end = Types
 
 and Top_level : sig
 
-  class virtual_machine : ?named:string -> unit ->
+  class ['a] virtual_machine : ?named:string -> unit ->
     object
+      constraint 'a = < unsafe_ptr_value : Types.js_ptr; .. >
       method evaluate_script : string -> string
       method garbage_collect : unit
       method check_syntax : string -> bool
       method set_name : string -> unit
       method name : string
+      method obj_has_property : 'a Types.js_ref -> prop:string -> unit
       method unsafe_ptr_value : Types.js_ptr
     end
 
 end = struct
-  class virtual_machine ?named () =
+  class ['a] virtual_machine ?named () =
     object(self)
+      constraint 'a = < unsafe_ptr_value : Types.js_ptr; .. >
       val raw_ptr = JSC.make_vm ()
       initializer
         match named with None -> self#set_name "" | Some s -> self#set_name s
@@ -78,11 +83,15 @@ end = struct
       method check_syntax src = JSC.check_script_syntax raw_ptr src
       method set_name name = JSC.set_vm_context_name raw_ptr name
       method name = JSC.get_vm_context_name raw_ptr
+      method obj_has_property (a : 'a Types.js_ref) ~(prop : string) =
+        ()
       method unsafe_ptr_value = raw_ptr
     end
 end
 
 and Objects : sig
+
+  (* class virtual js_ref : object end *)
 
   class js_class : ?class_def:Types.class_def -> unit ->
     object
@@ -105,12 +114,12 @@ and Objects : sig
       method release : unit
     end
 
-  class js_object : ?js_class:js_class -> Top_level.virtual_machine ->
+  class js_object : ?js_class:js_class -> 'a Top_level.virtual_machine ->
     object
 
     end
 
-  class js_date : ?opts:Types.date_opt_t -> Top_level.virtual_machine ->
+  class js_date : ?opts:Types.date_opt_t -> 'a Top_level.virtual_machine ->
     object
 
     end
@@ -145,7 +154,6 @@ end = struct
       method release = JSC.release_js_string raw_ptr
       method length = JSC.length_js_string raw_ptr
     end
-
 
   class context_group =
     object

@@ -3,11 +3,20 @@
     everything else will call release when garbage collected by the
     OCaml runtime *)
 
+module type Top_level =
+sig
+  type t = int list
+end
+
+
 module rec Types :
 sig
+
   type js_ptr
+
   type class_def = {name : string;
                     parent : Objects.js_class}
+
   type date_opt = {year : int;
                    month : int;
                    day : int option;
@@ -15,10 +24,15 @@ sig
                    minutes : int option;
                    seconds : int option;
                    milliseconds : int option}
+
   type date_opt_t = [`Date_string of string
                     | `Date_opts of date_opt]
+
+  type 'a js_ref = <unsafe_ptr_value: js_ptr; .. > as 'a
+
 end
-and Top_level : sig
+and Top_level :
+sig
   (** A JavaScript execution context. Holds the global object and
         other execution state. *)
   class virtual_machine : ?named:string -> unit ->
@@ -82,3 +96,7 @@ class virtual_machine : ?named:string -> unit ->
     method set_name : string -> unit
     method unsafe_ptr_value : Types.js_ptr
   end
+
+module type Top_level = sig end
+
+include Top_level
