@@ -22,7 +22,7 @@ module rec JSC : sig
     : js_ptr -> unit = "jsc_ml_release_context_group" [@@noalloc]
   external set_vm_context_name : js_ptr -> string -> unit = "jsc_ml_set_context_name"
   external get_vm_context_name : js_ptr -> string = "jsc_ml_get_context_name"
-  external make_jsc_js_class : Types.class_def -> js_ptr = "jsc_ml_make_class"
+  external make_jsc_js_class : Types.class_def option -> js_ptr = "jsc_ml_make_class"
   external retain_js_class : js_ptr -> unit = "jsc_ml_retain_class"
   external release_js_class : js_ptr -> unit = "jsc_ml_release_class"
 
@@ -36,7 +36,7 @@ end = Types
 
 and Objects : sig
 
-  class js_class : Types.class_def -> object
+  class js_class : ?class_def:Types.class_def -> unit -> object
       method retain : unit
       method release : unit
     end
@@ -70,7 +70,7 @@ end = struct
     method virtual release : unit
   end
 
-  class js_class class_def = object
+  class js_class ?class_def () = object
     inherit js_ref
     val raw_ptr = JSC.make_jsc_js_class class_def
     method retain = JSC.retain_js_class raw_ptr

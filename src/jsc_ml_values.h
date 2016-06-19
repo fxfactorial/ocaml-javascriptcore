@@ -37,6 +37,11 @@ const std::string current_date_time();
 
 #include <JavaScriptCore/JavaScript.h>
 
+#define Val_none Val_int(0)
+#define Some_val(v) Field(v, 0)
+
+CAMLprim value Val_some(value);
+
 #define JSVirtual_machine_val(v)		\
   (*((JSGlobalContextRef*)Data_custom_val(v)))
 

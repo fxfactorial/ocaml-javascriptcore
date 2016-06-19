@@ -12,7 +12,7 @@ and Objects :
 sig
 
   (** A JavaScript class *)
-  class js_class : Types.class_def ->
+  class js_class : ?class_def:Types.class_def -> unit ->
     object
       method release : unit
       method retain : unit

@@ -189,14 +189,21 @@ extern "C" {
   }
 
   CAMLprim value
-  jsc_ml_make_class(value class_def)
+  jsc_ml_make_class(value maybe_class_def)
   {
-    CAMLparam1(class_def);
+    CAMLparam1(maybe_class_def);
     CAMLlocal1(jsc_ml_class);
     DEBUG("Making a JSClassRef");
 
     jsc_ml_class = caml_alloc(sizeof(JSClassRef), Abstract_tag);
-    Store_field(jsc_ml_class, 0, (value)JSClassCreate(NULL));
+
+    if (maybe_class_def == Val_none) {
+      Store_field(jsc_ml_class, 0, (value)JSClassCreate(&kJSClassDefinitionEmpty));
+    } else {
+      //TODO, pull items out of record fields
+      printf("Passed some value\n");
+    }
+
     CAMLreturn(jsc_ml_class);
   }
 
