@@ -3,10 +3,11 @@
     and anything that inherits from js_ref will call release when
     garbage collected by the OCaml runtime *)
 
-type class_definition
-
-module Raw_calls = struct
+module rec JSC : sig
   type js_ptr
+  type class_def = {name: string;
+                    parent : JSC_objects.js_class; }
+
   external make_vm :
     unit -> js_ptr = "jsc_ml_make_vm"
   external evaluate_script :
@@ -29,59 +30,105 @@ module Raw_calls = struct
     : js_ptr -> unit = "jsc_ml_release_context_group" [@@noalloc]
   external set_vm_context_name : js_ptr -> string -> unit = "jsc_ml_set_context_name"
   external get_vm_context_name : js_ptr -> string = "jsc_ml_get_context_name"
-  external make_jsc_js_class : class_definition -> js_ptr = "jsc_ml_make_class"
+  external make_jsc_js_class : class_def -> js_ptr = "jsc_ml_make_class"
   external retain_js_class : js_ptr -> unit = "jsc_ml_retain_class"
   external release_js_class : js_ptr -> unit = "jsc_ml_release_class"
 
+
+end = JSC
+and JSC_objects : sig
+
+  class js_class : JSC.class_def -> object
+      val raw_ptr : JSC.js_ptr
+      method retain : unit
+      method release : unit
+    end
+
+  class js_string : ml_string:string -> object
+      val raw_ptr : JSC.js_ptr
+      method retain : unit
+      method release : unit
+      method length : int
+    end
+
+  class virtual_machine : ?named () -> object
+      val raw_ptr : JSC.js_ptr
+      method evaluate_script : string -> string
+      method garbage_collect : unit
+      method check_syntax : string -> bool
+      method set_name : string -> unit
+      method name : string
+    end
+
+end = struct
+
+  class virtual js_ref = object(self)
+    val virtual raw_ptr : JSC.js_ptr
+    initializer
+      Gc.finalise (fun instance -> instance#release) self
+    method virtual retain : unit
+    method virtual release : unit
+  end
+
+  (** A JavaScript class *)
+  class js_class class_def = object
+    inherit js_ref
+    val raw_ptr = JSC.make_jsc_js_class class_def
+    method retain = JSC.retain_js_class raw_ptr
+    method release = JSC.release_js_class raw_ptr
+  end
+
+  type class_def = {name: string;
+                    parent : js_class}
+
+  (** A JavaScript String *)
+  class js_string ~ml_string = object
+    inherit js_ref
+    val raw_ptr = JSC.make_js_string_with_ml_string ml_string
+    method retain = JSC.retain_js_string raw_ptr
+    method release = JSC.release_js_string raw_ptr
+    method length = JSC.length_js_string raw_ptr
+  end
+
+  (** A JavaScript execution context. Holds the global object and
+      other execution state. *)
+  class virtual_machine ?named () = object(self)
+    val raw_ptr = JSC.make_vm ()
+    initializer
+      match named with None -> self#set_name "" | Some s -> self#set_name s
+    method evaluate_script src = JSC.evaluate_script raw_ptr src
+    method garbage_collect = JSC.garbage_collect raw_ptr
+    method check_syntax src = JSC.check_script_syntax raw_ptr src
+    method set_name name = JSC.set_vm_context_name raw_ptr name
+    method name = JSC.get_vm_context_name raw_ptr
+  end
+
 end
 
-(** A JavaScript execution context. Holds the global object and
-    other execution state. *)
-class virtual_machine ?named () = object(self)
-  val raw_ptr = Raw_calls.make_vm ()
-  initializer
-    match named with None -> self#set_name "" | Some s -> self#set_name s
-  method evaluate_script src = Raw_calls.evaluate_script raw_ptr src
-  method garbage_collect = Raw_calls.garbage_collect raw_ptr
-  method check_syntax src = Raw_calls.check_script_syntax raw_ptr src
-  method set_name name = Raw_calls.set_vm_context_name raw_ptr name
-  method name = Raw_calls.get_vm_context_name raw_ptr
-end
 
-class virtual js_ref = object(self)
-  val virtual raw_ptr : Raw_calls.js_ptr
-  initializer
-    Gc.finalise (fun instance -> instance#release) self
-  method virtual retain : unit
-  method virtual release : unit
-end
-
-(** A JavaScript String *)
-class js_string ~ml_string = object
-  inherit js_ref
-  val raw_ptr = Raw_calls.make_js_string_with_ml_string ml_string
-  method retain = Raw_calls.retain_js_string raw_ptr
-  method release = Raw_calls.release_js_string raw_ptr
-  method length = Raw_calls.length_js_string raw_ptr
-end
-
-(** A JavaScript Context Group *)
-class context_group = object
-  inherit js_ref
-  val raw_ptr = Raw_calls.make_jsc_context_group ()
-  method retain = Raw_calls.retain_js_context_group raw_ptr
-  method release = Raw_calls.release_js_context_group raw_ptr
-end
+(* class virtual js_ref = object(self) *)
+(*   val virtual raw_ptr : Raw_calls.js_ptr *)
+(*   initializer *)
+(*     Gc.finalise (fun instance -> instance#release) self *)
+(*   method virtual retain : unit *)
+(*   method virtual release : unit *)
+(* end *)
 
 
-(** A JavaScript class *)
-class js_class class_def = object
-  inherit js_ref
+(* (\** A JavaScript Context Group *\) *)
+(* class context_group = object *)
+(*   inherit js_ref *)
+(*   val raw_ptr = Raw_calls.make_jsc_context_group () *)
+(*   method retain = Raw_calls.retain_js_context_group raw_ptr *)
+(*   method release = Raw_calls.release_js_context_group raw_ptr *)
+(* end *)
 
-  val raw_ptr = Raw_calls.make_jsc_js_class class_def
+(* (\** A JavaScript class *\) *)
+(* class js_class class_def = object *)
+(*   inherit js_ref *)
+(*   val raw_ptr = Raw_calls.make_jsc_js_class class_def *)
+(*   method retain = Raw_calls.retain_js_class raw_ptr *)
+(*   method release = Raw_calls.release_js_class raw_ptr *)
+(* end *)
 
-  method retain = Raw_calls.retain_js_class raw_ptr
-  method release = Raw_calls.release_js_class raw_ptr
-
-end
-
+include JSC_objects
