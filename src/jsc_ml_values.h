@@ -42,6 +42,7 @@ const std::string current_date_time();
 
 #define JSString_val(v) (JSStringRef)Field(v, 0)
 #define JSContext_group_val(v) (JSContextGroupRef)Field(v, 0)
+#define JSClass_val(v) (JSClassRef)Field(v, 0)
 
 extern struct custom_operations jsc_context_ops;
 value jsc_string_to_ml(JSStringRef);

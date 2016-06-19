@@ -188,4 +188,36 @@ extern "C" {
     CAMLreturn(jsc_string_to_ml(JSGlobalContextCopyName(JSVirtual_machine_val(context_value))));
   }
 
+  CAMLprim value
+  jsc_ml_make_class(value class_def)
+  {
+    CAMLparam1(class_def);
+    CAMLlocal1(jsc_ml_class);
+    DEBUG("Making a JSClassRef");
+
+    jsc_ml_class = caml_alloc(sizeof(JSClassRef), Abstract_tag);
+    Store_field(jsc_ml_class, 0, (value)JSClassCreate(NULL));
+    CAMLreturn(jsc_ml_class);
+  }
+
+  CAMLprim value
+  jsc_ml_retain_class(value class_)
+  {
+    CAMLparam1(class_);
+    DEBUG("Calling retain on a JSClassRef");
+
+    JSClassRetain(JSClass_val(class_));
+    CAMLreturn(Val_unit);
+  }
+
+  CAMLprim value
+  jsc_ml_release_class(value class_)
+  {
+    CAMLparam1(class_);
+    DEBUG("Calling release on a JSClassRef");
+
+    JSClassRelease(JSClass_val(class_));
+    CAMLreturn(Val_unit);
+  }
+
 }

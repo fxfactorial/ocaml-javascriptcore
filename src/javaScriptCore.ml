@@ -3,6 +3,8 @@
     and anything that inherits from js_ref will call release when
     garbage collected by the OCaml runtime *)
 
+type class_definition
+
 module Raw_calls = struct
   type js_ptr
   external make_vm :
@@ -27,6 +29,10 @@ module Raw_calls = struct
     : js_ptr -> unit = "jsc_ml_release_context_group" [@@noalloc]
   external set_vm_context_name : js_ptr -> string -> unit = "jsc_ml_set_context_name"
   external get_vm_context_name : js_ptr -> string = "jsc_ml_get_context_name"
+  external make_jsc_js_class : class_definition -> js_ptr = "jsc_ml_make_class"
+  external retain_js_class : js_ptr -> unit = "jsc_ml_retain_class"
+  external release_js_class : js_ptr -> unit = "jsc_ml_release_class"
+
 end
 
 (** A JavaScript execution context. Holds the global object and
@@ -66,3 +72,16 @@ class context_group = object
   method retain = Raw_calls.retain_js_context_group raw_ptr
   method release = Raw_calls.release_js_context_group raw_ptr
 end
+
+
+(** A JavaScript class *)
+class js_class class_def = object
+  inherit js_ref
+
+  val raw_ptr = Raw_calls.make_jsc_js_class class_def
+
+  method retain = Raw_calls.retain_js_class raw_ptr
+  method release = Raw_calls.release_js_class raw_ptr
+
+end
+
