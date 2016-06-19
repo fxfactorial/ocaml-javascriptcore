@@ -59,6 +59,34 @@ utop # s#length;;
 - : int = 11
 ```
 
+# Example
+All of this is of course subject to change as I'm feeling out the APIs
+but here's one example.
+
+```ocaml
+let () =
+  let vm = new JavaScriptCore.virtual_machine () in
+  let date = vm#make_js_date () in
+  if date#has_property "setYear"
+  then print_endline "setYear is a real property of a JS Object"
+  else prerr_endline "setYear should have existed"
+
+```
+
+(Assuming that library was built with the `JSC_ML_DEBUG defined`)
+and all you'd need to compile and run would be: 
+
+```shell
+$ ocamlfind ocamlopt -package javascriptcore e.ml -linkpkg -o T
+$ ./T
+[2016-06-19.15:57:11] [value jsc_ml_make_vm(value)]: Creating a JSC Global Context, aka a Virtual Machine
+[2016-06-19.15:57:11] [value jsc_ml_set_context_name(value, value)]: Setting Context Name
+[2016-06-19.15:57:11] [JSStringRef ml_string_to_jsc_string(value)]: Converting OCaml string to JSC string
+[2016-06-19.15:57:11] [value jsc_ml_make_date_now(value)]: Creating JSC Date with no arguments
+[2016-06-19.15:57:11] [JSStringRef ml_string_to_jsc_string(value)]: Converting OCaml string to JSC string
+setYear is a real property of a JS Object
+```
+
 # Backing 
 
 This project is built with OCaml 4.03.0, C++11, libc++, blocks,
