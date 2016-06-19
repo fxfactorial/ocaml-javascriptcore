@@ -288,5 +288,15 @@ extern "C" {
     CAMLreturn(Val_unit);
   }
 
+  CAMLprim value
+  jsc_ml_jsc_obj_has_property(value jsc_vm, value date_object, value property_name)
+  {
+    CAMLparam3(jsc_vm, date_object, property_name);
+
+    CAMLreturn(Val_bool(JSObjectHasProperty(JSVirtual_machine_val(jsc_vm),
+					    JSObject_val(date_object),
+					    ml_string_to_jsc_string(property_name))));
+  }
+
 
 }

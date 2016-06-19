@@ -48,6 +48,7 @@ CAMLprim value Val_some(value);
 #define JSString_val(v) (JSStringRef)Field(v, 0)
 #define JSContext_group_val(v) (JSContextGroupRef)Field(v, 0)
 #define JSClass_val(v) (JSClassRef)Field(v, 0)
+#define JSObject_val(v) (JSObjectRef)Field(v, 0)
 
 extern struct custom_operations jsc_context_ops;
 CAMLprim value jsc_string_to_ml(JSStringRef);

@@ -1,4 +1,5 @@
 module rec JSC : sig
+
   external make_vm :
     unit -> Types.js_ptr = "jsc_ml_make_vm"
   external evaluate_script :
@@ -35,10 +36,13 @@ module rec JSC : sig
     Types.js_ptr -> Types.date_opt -> Types.js_ptr = "jsc_ml_make_date_with_dates"
   external make_jsc_date_with_datestring :
     Types.js_ptr -> string -> Types.js_ptr = "jsc_ml_make_date_with_datestring"
+  external jsc_object_has_property :
+    Types.js_ptr -> Types.js_ptr -> string -> bool = "jsc_ml_jsc_obj_has_property"
 
 end = JSC
 
 and Types : sig
+
   type js_ptr
   type class_def = {name: string;
                     parent : Objects.js_class; }
@@ -65,20 +69,25 @@ and Top_level : sig
       method set_name : string -> unit
       method name : string
       method unsafe_ptr_value : Types.js_ptr
+      method make_js_date : ?opts:Types.date_opt_t -> unit -> Objects.js_date
     end
 
 end = struct
+
   class virtual_machine ?named () =
     object(self)
       val raw_ptr = JSC.make_vm ()
       initializer
         match named with None -> self#set_name "" | Some s -> self#set_name s
+
       method evaluate_script src = JSC.evaluate_script raw_ptr src
       method garbage_collect = JSC.garbage_collect raw_ptr
       method check_syntax src = JSC.check_script_syntax raw_ptr src
       method set_name name = JSC.set_vm_context_name raw_ptr name
       method name = JSC.get_vm_context_name raw_ptr
       method unsafe_ptr_value = raw_ptr
+      method make_js_date ?opts () =
+        new Objects.js_date ?opts (self :> virtual_machine)
     end
 end
 
@@ -98,32 +107,32 @@ and Objects : sig
       method length : int
     end
 
-
   class context_group :
     object
       method retain : unit
       method release : unit
     end
 
-  class js_object : ?js_class:js_class -> Top_level.virtual_machine ->
-    object
+  (* class js_object : ?js_class:js_class -> 'a Top_level.virtual_machine -> *)
+  (*   object *)
 
-    end
+  (*   end *)
 
   class js_date : ?opts:Types.date_opt_t -> Top_level.virtual_machine ->
     object
-
+      method has_property : string -> bool
     end
 
 end = struct
 
-  class virtual js_ref = object(self)
-    val virtual raw_ptr : Types.js_ptr
-    initializer
-      Gc.finalise (fun instance -> instance#release) self
-    method virtual retain : unit
-    method virtual release : unit
-  end
+  class virtual js_ref =
+    object(self)
+      val virtual raw_ptr : Types.js_ptr
+      initializer
+        Gc.finalise (fun instance -> instance#release) self
+      method virtual retain : unit
+      method virtual release : unit
+    end
 
   class js_class ?class_def () =
     object
@@ -145,7 +154,6 @@ end = struct
       method release = JSC.release_js_string raw_ptr
       method length = JSC.length_js_string raw_ptr
     end
-
 
   class context_group =
     object
@@ -171,6 +179,10 @@ end = struct
           | Some `Date_opts opt ->
             make_jsc_date_with_dates vm#unsafe_ptr_value opt
         ))
+
+      method has_property (s:string) =
+        JSC.jsc_object_has_property vm#unsafe_ptr_value raw_ptr s
+
     end
 
 end
