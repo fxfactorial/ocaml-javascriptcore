@@ -50,7 +50,8 @@ CAMLprim value Val_some(value);
 #define JSClass_val(v) (JSClassRef)Field(v, 0)
 
 extern struct custom_operations jsc_context_ops;
-value jsc_string_to_ml(JSStringRef);
+CAMLprim value jsc_string_to_ml(JSStringRef);
 JSStringRef ml_string_to_jsc_string(value);
+CAMLprim value make_ml_jsobject_ref(void);
 
 #endif

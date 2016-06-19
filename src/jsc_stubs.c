@@ -227,4 +227,66 @@ extern "C" {
     CAMLreturn(Val_unit);
   }
 
+  CAMLprim value
+  jsc_ml_make_object(value jsc_vm, value maybe_jsc_class)
+  {
+    CAMLparam2(jsc_vm, maybe_jsc_class);
+
+    DEBUG("Creating JSC Object");
+
+    value jsc_ml_object = make_ml_jsobject_ref();
+
+    if (maybe_jsc_class == Val_none) {
+      Store_field(jsc_ml_object,
+		  0,
+		  (value)JSObjectMake(JSVirtual_machine_val(jsc_vm),
+				      NULL,
+				      NULL));
+    } else {
+      // TODO
+    }
+    CAMLreturn(jsc_ml_object);
+  }
+
+  CAMLprim value
+  jsc_ml_make_date_now(value jsc_vm)
+  {
+    CAMLparam1(jsc_vm);
+    DEBUG("Creating JSC Date with no arguments");
+
+    value jsc_ml_object = make_ml_jsobject_ref();
+    Store_field(jsc_ml_object,
+		0,
+		(value)JSObjectMakeDate(JSVirtual_machine_val(jsc_vm), 0, NULL, NULL));
+
+    CAMLreturn(jsc_ml_object);
+  }
+
+  CAMLprim value
+  // type date_opt =
+  //   {year : int; month : int; day : int option; hour : int option;
+  //    minutes : int option; seconds : int option; milliseconds : int option}
+  jsc_ml_make_date_with_dates(value jsc_vm, value date_record)
+  {
+    CAMLparam2(jsc_vm, date_record);
+    DEBUG("Creating JSC Date with date record from OCaml");
+
+    value jsc_ml_object = make_ml_jsobject_ref();
+
+    CAMLreturn(Val_unit);
+  }
+
+
+  CAMLprim value
+  jsc_ml_make_date_with_datestring(value jsc_vm, value ml_string)
+  {
+    CAMLparam2(jsc_vm, ml_string);
+    DEBUG("Creating JSC date with datestring");
+
+    value jsc_ml_object = make_ml_jsobject_ref();
+
+    CAMLreturn(Val_unit);
+  }
+
+
 }

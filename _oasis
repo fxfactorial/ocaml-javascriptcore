@@ -92,6 +92,14 @@ Executable test_objects
   MainIs:test_objects.ml
   BuildDepends: javascriptcore, alcotest
 
+Executable test_jsc_date
+  Path: tests
+  Build:true
+  Install: false
+  CompiledObject: native
+  MainIs:test_jsc_date.ml
+  BuildDepends: javascriptcore, alcotest
+
 Test test_eval_scripts_
   Command: $test_eval_scripts
   TestTools: test_eval_scripts
@@ -115,6 +123,11 @@ Test test_gc_pressure_
 Test test_objects_
   Command:$test_objects
   TestTools:test_objects
+  Run:true
+
+Test test_jsc_date_
+  Command:$test_jsc_date
+  TestTools:test_jsc_date
   Run:true
 
 SourceRepository master

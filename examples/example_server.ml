@@ -10,7 +10,7 @@ let () =
     open_in "static/react.min.js" |> exhaust |> String.concat ""
   in
   let js_vm =
-    new JavaScriptCore.Objects.virtual_machine ~named:"ReactServerVM" ()
+    new JavaScriptCore.virtual_machine ~named:"ReactServerVM" ()
   in
 
   if not (js_vm#evaluate_script reactjs_src |> bool_of_string)

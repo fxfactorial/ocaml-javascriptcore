@@ -1,11 +1,11 @@
 let gc_pressure_1 () =
-  let mini_func () = ignore (new JavaScriptCore.Objects.virtual_machine ()) in
+  let mini_func () = ignore (new JavaScriptCore.virtual_machine ()) in
   mini_func ();
   Gc.major ()
 
 let gc_pressure_2 () =
   let mini_func () =
-    let js_vm = new JavaScriptCore.Objects.virtual_machine () in
+    let js_vm = new JavaScriptCore.virtual_machine () in
     js_vm#evaluate_script {|
 const first = "Hello";
 const second = " World";

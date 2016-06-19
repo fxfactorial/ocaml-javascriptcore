@@ -76,3 +76,11 @@ ml_string_to_jsc_string(value ml_string)
 
   return JSStringCreateWithUTF8CString(caml_strdup(String_val(ml_string)));
 }
+
+CAMLprim value
+make_ml_jsobject_ref(void)
+{
+  CAMLlocal1(jsc_ml_object);
+  jsc_ml_object = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
+  return jsc_ml_object;
+}
