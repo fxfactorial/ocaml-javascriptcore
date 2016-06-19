@@ -14,7 +14,8 @@ module rec JSC : sig
     : js_ptr -> unit = "jsc_ml_release_jsc_string" [@@noalloc]
   external retain_js_string
     : js_ptr -> unit = "jsc_ml_retain_jsc_string" [@@noalloc]
-  external length_js_string : js_ptr -> int = "jsc_ml_jsc_length"
+  external length_js_string :
+    js_ptr -> int = "jsc_ml_jsc_length" [@@noalloc]
   external make_jsc_context_group : unit -> js_ptr = "jsc_ml_make_context_group"
   external retain_js_context_group :
     js_ptr -> unit = "jsc_ml_retain_context_group" [@@noalloc]
@@ -23,8 +24,10 @@ module rec JSC : sig
   external set_vm_context_name : js_ptr -> string -> unit = "jsc_ml_set_context_name"
   external get_vm_context_name : js_ptr -> string = "jsc_ml_get_context_name"
   external make_jsc_js_class : Types.class_def option -> js_ptr = "jsc_ml_make_class"
-  external retain_js_class : js_ptr -> unit = "jsc_ml_retain_class"
-  external release_js_class : js_ptr -> unit = "jsc_ml_release_class"
+  external retain_js_class :
+    js_ptr -> unit = "jsc_ml_retain_class" [@@noalloc]
+  external release_js_class :
+    js_ptr -> unit = "jsc_ml_release_class" [@@noalloc]
 
 end = JSC
 
