@@ -273,7 +273,7 @@ extern "C" {
 
     value jsc_ml_object = make_ml_jsobject_ref();
 
-    CAMLreturn(Val_unit);
+    CAMLreturn(jsc_ml_object);
   }
 
 
@@ -285,7 +285,7 @@ extern "C" {
 
     value jsc_ml_object = make_ml_jsobject_ref();
 
-    CAMLreturn(Val_unit);
+    CAMLreturn(jsc_ml_object);
   }
 
   CAMLprim value
@@ -298,5 +298,35 @@ extern "C" {
 					    ml_string_to_jsc_string(property_name))));
   }
 
+  CAMLprim value
+  jsc_ml_jsc_obj_get_property(value jsc_vm, value date_object, value property_name)
+  {
+    CAMLparam3(jsc_vm, date_object, property_name);
+    CAMLlocal1(as_string);
+
+    JSValueRef result = JSObjectGetProperty(JSVirtual_machine_val(jsc_vm),
+					    JSObject_val(date_object),
+					    ml_string_to_jsc_string(property_name),
+					    NULL);
+    JSStringRef s = JSValueToStringCopy(JSVirtual_machine_val(jsc_vm), result, NULL);
+    as_string = jsc_string_to_ml(s);
+    JSStringRelease(s);
+    CAMLreturn(as_string);
+  }
+
+  CAMLprim value
+  jsc_ml_jsc_object_prop_names(value vm, value jsc_object)
+  {
+    CAMLparam2(vm, jsc_object);
+    CAMLlocal2(as_ml_list, cons);
+
+    JSPropertyNameArrayRef names =
+      JSObjectCopyPropertyNames(JSVirtual_machine_val(vm),
+				JSObject_val(jsc_object));
+    printf("Length beforehand: %lu\n", JSPropertyNameArrayGetCount(names));
+    as_ml_list = string_list_of_prop_array(names);
+    JSPropertyNameArrayRelease(names);
+    CAMLreturn(as_ml_list);
+  }
 
 }

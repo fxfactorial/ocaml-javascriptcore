@@ -67,7 +67,7 @@ jsc_string_to_ml(JSStringRef str)
   char string_buffer[string_len];
   JSStringGetUTF8CString(str, string_buffer, string_len);
   return caml_copy_string(string_buffer);
- }
+}
 
 JSStringRef
 ml_string_to_jsc_string(value ml_string)
@@ -83,4 +83,27 @@ make_ml_jsobject_ref(void)
   CAMLlocal1(jsc_ml_object);
   jsc_ml_object = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
   return jsc_ml_object;
+}
+
+CAMLprim value string_list_of_prop_array(JSPropertyNameArrayRef arr)
+{
+  CAMLlocal3(as_ml_list, cons, as_ml_string);
+
+  as_ml_list = Val_emptylist;
+
+  size_t len = JSPropertyNameArrayGetCount(arr);
+  printf("Total num is: %lu\n", len);
+  for (size_t i = 0; i < len; i++) {
+    cons = caml_alloc(2, 0);
+    as_ml_string =
+      jsc_string_to_ml(JSPropertyNameArrayGetNameAtIndex(arr, i));
+    printf("Property Name: %s\n", String_val(as_ml_string));
+    Store_field(cons,
+		0,
+		as_ml_string);
+    Store_field(cons, 1, as_ml_list);
+    as_ml_list = cons;
+  }
+
+  return as_ml_list;
 }

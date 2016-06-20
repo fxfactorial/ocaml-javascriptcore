@@ -38,6 +38,11 @@ module rec JSC : sig
     Types.js_ptr -> string -> Types.js_ptr = "jsc_ml_make_date_with_datestring"
   external jsc_object_has_property :
     Types.js_ptr -> Types.js_ptr -> string -> bool = "jsc_ml_jsc_obj_has_property"
+  external jsc_object_get_property :
+    Types.js_ptr -> Types.js_ptr -> string -> string = "jsc_ml_jsc_obj_get_property"
+
+  external jsc_object_get_property_names :
+    Types.js_ptr -> Types.js_ptr -> string list = "jsc_ml_jsc_object_prop_names"
 
 end = JSC
 
@@ -121,6 +126,8 @@ and Objects : sig
   class js_date : ?opts:Types.date_opt_t -> Top_level.virtual_machine ->
     object
       method has_property : string -> bool
+      method get_property : string -> string
+      method property_names : string list
     end
 
 end = struct
@@ -182,6 +189,12 @@ end = struct
 
       method has_property (s:string) =
         JSC.jsc_object_has_property vm#unsafe_ptr_value raw_ptr s
+
+      method get_property (s: string) : string =
+        JSC.jsc_object_get_property vm#unsafe_ptr_value raw_ptr s
+
+      method property_names =
+        JSC.jsc_object_get_property_names vm#unsafe_ptr_value raw_ptr
 
     end
 

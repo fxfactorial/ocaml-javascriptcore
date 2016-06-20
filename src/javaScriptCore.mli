@@ -69,6 +69,8 @@ sig
   class type js_date =
     object
       method has_property : string -> bool
+      method get_property : string -> string
+      method property_names : string list
     end
 
 end
