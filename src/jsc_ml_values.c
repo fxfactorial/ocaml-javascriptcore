@@ -39,25 +39,6 @@ Val_some(value v)
   CAMLreturn(some);
 }
 
-static void
-jsc_ml_vm_finalize(value ctx)
-{
-  DEBUG("Calling release for JS Virtual Machine");
-
-  return JSGlobalContextRelease(JSVirtual_machine_val(ctx));
-}
-
-struct custom_operations
-jsc_context_ops = {
-  (char*)"jsc.vm",
-  jsc_ml_vm_finalize,
-  custom_compare_default,
-  custom_hash_default,
-  custom_serialize_default,
-  custom_deserialize_default,
-  custom_compare_ext_default
-};
-
 value
 jsc_string_to_ml(JSStringRef str)
 {
@@ -75,14 +56,6 @@ ml_string_to_jsc_string(value ml_string)
   DEBUG("Converting OCaml string to JSC string");
 
   return JSStringCreateWithUTF8CString(caml_strdup(String_val(ml_string)));
-}
-
-CAMLprim value
-make_ml_jsobject_ref(void)
-{
-  CAMLlocal1(jsc_ml_object);
-  jsc_ml_object = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
-  return jsc_ml_object;
 }
 
 CAMLprim value string_list_of_prop_array(JSPropertyNameArrayRef arr)

@@ -39,20 +39,16 @@ const std::string current_date_time();
 
 #define Val_none Val_int(0)
 #define Some_val(v) Field(v, 0)
-#define JSVirtual_machine_val(v)		\
-  (*((JSGlobalContextRef*)Data_custom_val(v)))
 #define JSString_val(v) (JSStringRef)Field(v, 0)
 #define JSContext_group_val(v) (JSContextGroupRef)Field(v, 0)
+#define JSGlobalContext_val(v) (JSGlobalContextRef)Field(v, 0)
 #define JSClass_val(v) (JSClassRef)Field(v, 0)
 #define JSObject_val(v) (JSObjectRef)Field(v, 0)
-
-extern struct custom_operations jsc_context_ops;
 
 // Helper functions
 CAMLprim value Val_some(value);
 CAMLprim value jsc_string_to_ml(JSStringRef);
 JSStringRef ml_string_to_jsc_string(value);
-CAMLprim value make_ml_jsobject_ref(void);
 CAMLprim value string_list_of_prop_array(JSPropertyNameArrayRef);
 
 #endif
