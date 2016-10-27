@@ -38,12 +38,6 @@ Or during development
 $ JSC_ML_DEBUG= make
 ```
 
-Or for running the tests..
-
-```shell
-$ JSC_ML_DEBUG= make test
-```
-
 An example `utop` session:
 
 ```shell
@@ -89,7 +83,7 @@ setYear is a real property of a JS Object
 
 # Backing 
 
-This project is built with OCaml 4.03.0, C++11, libc++, blocks,
+This project is built with OCaml 4.03.0, C++11, libc++,
 JavaScriptCore. It does not use objective-c and works on Linux.
 
 # Help Wanted

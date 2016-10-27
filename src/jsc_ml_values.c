@@ -29,21 +29,10 @@ current_date_time()
 }
 #endif
 
-CAMLprim value
-Val_some(value v)
-{
-  CAMLparam1(v);
-  CAMLlocal1(some);
-  some = caml_alloc(1, 0);
-  Store_field(some, 0, v);
-  CAMLreturn(some);
-}
-
 static void
 jsc_ml_vm_finalize(value ctx)
 {
   DEBUG("Calling release for JS Virtual Machine");
-
   return JSGlobalContextRelease(JSVirtual_machine_val(ctx));
 }
 
@@ -62,7 +51,6 @@ value
 jsc_string_to_ml(JSStringRef str)
 {
   DEBUG("Converting JSC string into OCaml string");
-
   size_t string_len = JSStringGetMaximumUTF8CStringSize(str);
   char string_buffer[string_len];
   JSStringGetUTF8CString(str, string_buffer, string_len);
@@ -73,14 +61,5 @@ JSStringRef
 ml_string_to_jsc_string(value ml_string)
 {
   DEBUG("Converting OCaml string to JSC string");
-
   return JSStringCreateWithUTF8CString(caml_strdup(String_val(ml_string)));
-}
-
-CAMLprim value
-make_ml_jsobject_ref(void)
-{
-  CAMLlocal1(jsc_ml_object);
-  jsc_ml_object = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
-  return jsc_ml_object;
 }

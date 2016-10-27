@@ -17,7 +17,7 @@
 #include <string>
 #include <time.h>
 
-const std::string current_date_time();
+const std::string current_date_time(void);
 // http://stackoverflow.com/questions/997946/how-to-get-current-time-and-date-in-c
 // TrungTN's was easiest to use
 #define DEBUG(s)				\

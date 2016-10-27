@@ -1,6 +1,7 @@
 # -*- conf -*-
+# wget http://dl.devdocs.io/javascript.tar.gz
 OASISFormat:   0.4
-Name:          JavaScriptCore
+Name:          javascriptcore
 Version:       0.0.1
 Synopsis:      OCaml bindings to JavaScriptCore
 Authors:       Edgar Aroutiounian <edgar.factorial@gmail.com>
@@ -11,124 +12,25 @@ OCamlVersion:  >= 4.03.0
 AlphaFeatures: ocamlbuild_more_args
 Plugins:       META (0.4), DevFiles (0.4)
 BuildTools:    ocamlbuild, ocamldoc
-Description: Create, Control, Execute JavaScript values directly in OCaml. 
+Description:   Create a JavaScript environment, evaluate JavaScript in OCaml
 
 Library javascriptcore
   Path: src
   Modules: JavaScriptCore
   install: true
   if system(macosx)
-    CCOpt: -g -Wall -std=c++11 -x c++ -fPIC -stdlib=libc++
-  else
-    CCOpt: -I/usr/include/webkitgtk-3.0 -std=c++11 -x c++ -fblocks -fPIC -stdlib=libc++
-
-  if system(macosx)
+    CCOpt:
+      -std=c++14 -x c++ -stdlib=libc++ -O2
     CClib: -framework JavaScriptCore -lc++
   else
-    CClib: -ljavascriptcoregtk-3.0 -lBlocksRuntime -lc++
-
+    CCOpt:
+      -I/usr/include/webkitgtk-4.0 -std=c++14 -x c++ -O2
+    CClib:
+      -ljavascriptcoregtk-4.0 -lc++
   NativeOpt: -g -w +a-4-40..42-44-45-48
   ByteOpt: -g -w +a-4-40..42-44-45-48
-  CSources: jsc_ml_values.h, jsc_ml_values.c, jsc_stubs.c
-
-Library ppx
-  FindlibName: ppx
-  FindlibParent: javascriptcore
-  Path: src/ppx
-  Modules: Ppx_jsc
-  CompiledObject: native
-  BuildDepends: compiler-libs
-  XMETADescription: New-style (ppx) syntax extension
-  XMETARequires:    javascriptcore
-  XMETAExtraLines:  ppx = "ppx_javascriptcore"
-
-Executable example_server
-  Path: examples
-  Build:true
-  Install: false
-  CompiledObject: native
-  MainIs:example_server.ml
-  BuildDepends:
-    javascriptcore, cohttp.lwt,
-    lwt.ppx (>= 2.5.2)
-
-Executable test_js_syntax
-  Path: tests
-  Build:true
-  Install: false
-  CompiledObject: native
-  MainIs:test_js_syntax.ml
-  BuildDepends: javascriptcore, alcotest
-
-Executable test_gc_pressure
-  Path: tests
-  Build:true
-  Install: false
-  CompiledObject: native
-  MainIs:test_gc_pressure.ml
-  BuildDepends: javascriptcore, alcotest
-
-Executable test_eval_scripts
-  Path: tests
-  Build:true
-  Install: false
-  CompiledObject: native
-  MainIs:test_eval_scripts.ml
-  BuildDepends: javascriptcore, alcotest
-
-Executable test_strings
-  Path: tests
-  Build:true
-  Install: false
-  CompiledObject: native
-  MainIs:test_strings.ml
-  BuildDepends: javascriptcore, alcotest
-
-Executable test_objects
-  Path: tests
-  Build:true
-  Install: false
-  CompiledObject: native
-  MainIs:test_objects.ml
-  BuildDepends: javascriptcore, alcotest
-
-Executable test_jsc_date
-  Path: tests
-  Build:true
-  Install: false
-  CompiledObject: native
-  MainIs:test_jsc_date.ml
-  BuildDepends: javascriptcore, alcotest
-
-Test test_eval_scripts_
-  Command: $test_eval_scripts
-  TestTools: test_eval_scripts
-  Run: true
-
-Test test_strings_
-  Command: $test_strings
-  TestTools: test_strings
-  Run: true
-
-Test test_js_syntax_
-  Command: $test_js_syntax
-  TestTools: test_js_syntax
-  Run: true
-
-Test test_gc_pressure_
-  Command:$test_gc_pressure
-  TestTools:test_gc_pressure
-  Run:true
-
-Test test_objects_
-  Command:$test_objects
-  TestTools:test_objects
-  Run:true
-
-Test test_jsc_date_
-  Command:$test_jsc_date
-  TestTools:test_jsc_date
-  Run:true
+  CSources:
+    jsc_ml_values.h, jsc_ml_values.c, jsc_stubs.c
 
 SourceRepository master
   Type:     git
@@ -140,8 +42,8 @@ Document api
   Type:               ocamlbuild (0.4)
   BuildTools+:        ocamldoc
   InstallDir:         $htmldir/javascriptcore
-  PostCommand:        cp doc/style.css api.docdir
-  XOCamlbuildPath:    doc
+  PostCommand:        cp docs/style.css api.docdir && cp api.docdir/* docs
+  XOCamlbuildPath:    docs
   XOCamlbuildModules: src/JavaScriptCore
   Install:            true
   XOCamlbuildExtraArgs:

@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="Up" href="JavaScriptCore.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="JavaScriptCore" rel="Chapter" href="JavaScriptCore.html"><title>JavaScriptCore.virtual_machine</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="JavaScriptCore.html" title="JavaScriptCore">Up</a>
+&nbsp;</div>
+<h1>Class <a href="type_JavaScriptCore.virtual_machine.html">JavaScriptCore.virtual_machine</a></h1>
+
+<pre><span name="TYPEvirtual_machine"><span class="keyword">class</span> virtual_machine</span> : <code class="type">?named:string -> unit -> </code><code class="code"><span class="keyword">object</span></code> <a href="JavaScriptCore.virtual_machine-c.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info class top">
+A JavaScript execution context. Holds the global object and
+      other execution state.<br>
+</div>
+<hr width="100%">
+
+<pre><span id="METHODevaluate_script"><span class="keyword">method</span> evaluate_script</span> : <code class="type">string -> string</code></pre><div class="info ">
+Evaluate JavaScript code, gives back result of evaluation<br>
+</div>
+
+<pre><span id="METHODgarbage_collect"><span class="keyword">method</span> garbage_collect</span> : <code class="type">unit</code></pre><div class="info ">
+Force a garbage collection in the VM<br>
+</div>
+
+<pre><span id="METHODcheck_syntax"><span class="keyword">method</span> check_syntax</span> : <code class="type">string -> bool</code></pre><div class="info ">
+Check if the JavaScript given has a syntax error<br>
+</div>
+
+<pre><span id="METHODname"><span class="keyword">method</span> name</span> : <code class="type">string</code></pre><div class="info ">
+Name of the given context<br>
+</div>
+
+<pre><span id="METHODset_name"><span class="keyword">method</span> set_name</span> : <code class="type">string -> unit</code></pre><div class="info ">
+Set the name of the context<br>
+</div>
+</body></html>
