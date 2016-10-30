@@ -20,14 +20,14 @@ Library javascriptcore
   install: true
   if system(macosx)
     CCOpt:
-      -std=c++14 -x c++ -stdlib=libc++ -O2
-    CClib: -framework JavaScriptCore -lc++
+      -std=c11 -O2
+    CClib: -framework JavaScriptCore
   else
     CCOpt:
-      -I/usr/include/webkitgtk-4.0 -std=c++14 -x c++ -O2
+      -I/usr/include/webkitgtk-4.0 -std=c11 -O2
     CClib:
       -ljavascriptcoregtk-4.0 -lc++
-  NativeOpt: -g -w +a-4-40..42-44-45-48
+  NativeOpt: -g -w +a-4-40..42-44-45-48 -cclib -fsanitize=address -ccopt -fsanitize=address
   ByteOpt: -g -w +a-4-40..42-44-45-48
   CSources:
     jsc_ml_values.h, jsc_ml_values.c, jsc_stubs.c

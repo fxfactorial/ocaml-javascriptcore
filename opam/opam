@@ -16,8 +16,8 @@ build: [
 ]
 install: ["ocaml" "setup.ml" "-install"]
 depexts: [
-  [["debian"] ["libc++-dev" "libjavascriptcoregtk-4.0-dev"]]
-  [["ubuntu"] ["libc++-dev" "libjavascriptcoregtk-4.0-dev"]]
+  [["debian"] ["libjavascriptcoregtk-4.0-dev"]]
+  [["ubuntu"] ["libjavascriptcoregtk-4.0-dev"]]
 ]
 remove: [
   ["ocamlfind" "remove" "javascriptcore"]
@@ -33,5 +33,6 @@ messages:[
   "Installation might fail, follow depext instructions and try again." {(os = "linux")}
 ]
 post-messages:[
-  "You need to have libjavascriptcoregtk-4.0 and libc++, opam depexts can install it for you." {(os = "linux")}
+  "You need to have libjavascriptcoregtk-4.0, opam depexts can install it for you."
+  {(os = "linux")}
 ]
