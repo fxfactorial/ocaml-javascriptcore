@@ -34,11 +34,32 @@ module Context = struct
     js_global_context -> unit = "jsc_ml_global_context_retain" [@@noalloc]
   external global_context_release :
     js_global_context -> unit = "jsc_ml_global_context_release" [@@noalloc]
-
   external global_context_get_global_object :
     js_context -> js_object = "jsc_ml_get_global_object"
-
   external get_group : js_context -> js_context_group = "jsc_ml_get_group"
+end
+
+module Object = struct
+  type property_attribute = None | Read_only | Don't_enum | Don't_delete
+  type class_attribute = None | No_automatic_prototype
+  type initializer_cb = js_context -> js_object -> unit
+  type finalizer_cb = js_object -> unit
+  type has_property_cb = js_context -> js_object -> js_string -> bool
+end
+
+module String = struct
+  external create_with_chars : string -> int -> js_string =
+    "jsc_ml_string_create_with_chars"
+  external create_with_utf8 : string -> js_string = "jsc_ml_string_create_with_utf8"
+  external retain : js_string -> unit = "jsc_ml_string_retain" [@@noalloc]
+  external release : js_string -> unit = "jsc_ml_string_release" [@@noalloc]
+  external length : js_string -> int = "jsc_ml_string_length" [@@noalloc]
+  external maximum_utf8_string_length : js_string -> int = "jsc_ml_string_max_size" [@@noalloc]
+  (* external get_utf8_string : js_string -> string -> int -> int = *)
+  (*   "jsc_ml_string_get_utf8_string" *)
+  external is_equal : js_string -> js_string -> bool = "jsc_ml_string_is_equal"
+  external is_equal_to_utf8_string : js_string -> string -> bool =
+    "jsc_ml_string_is_equal_utf8"
 end
 
 module JSValue = struct

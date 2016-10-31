@@ -49,6 +49,7 @@ CAMLprim value Val_some(value);
 #define JSClass_val(v) ((JSClassRef)Field(v, 0))
 #define JSGlobal_context_val(v) ((JSGlobalContextRef)Field(v, 0))
 #define JSContext_val(v) ((JSContextRef)Field(v, 0))
+#define JSString_val(v) ((JSStringRef)Field(v, 0))
 
 extern struct custom_operations jsc_context_ops;
 

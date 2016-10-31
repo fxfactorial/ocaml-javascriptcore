@@ -114,6 +114,75 @@ jsc_ml_get_group(value context)
   Store_field(wrapper, 0, (value)JSContextGetGroup(JSContext_val(context)));
   CAMLreturn(wrapper);
 }
+
+CAMLprim value
+jsc_ml_string_create_with_chars(value chars, value length)
+{
+  CAMLparam2(chars, length);
+  CAMLlocal1(wrapper);
+  wrapper = caml_alloc(sizeof(JSStringRef), Abstract_tag);
+  Store_field(wrapper,
+	      0,
+	      (value)JSStringCreateWithCharacters((const unsigned short *)String_val(chars),
+						  Int_val(length)));
+  CAMLreturn(wrapper);
+}
+
+CAMLprim value
+jsc_ml_string_create_with_utf8(value s)
+{
+  CAMLparam1(s);
+  CAMLlocal1(wrapper);
+  wrapper = caml_alloc(sizeof(JSStringRef), Abstract_tag);
+  Store_field(wrapper, 0, (value)JSStringCreateWithUTF8CString(String_val(s)));
+  CAMLreturn(wrapper);
+}
+
+CAMLprim value
+jsc_ml_string_retain(value js_string)
+{
+  CAMLparam1(js_string);
+  JSStringRetain(JSString_val(js_string));
+  CAMLreturn(Val_unit);
+}
+
+CAMLprim value
+jsc_ml_string_release(value js_string)
+{
+  CAMLparam1(js_string);
+  JSStringRelease(JSString_val(js_string));
+  CAMLreturn(Val_unit);
+}
+
+CAMLprim value
+jsc_ml_string_length(value js_string)
+{
+  CAMLparam1(js_string);
+  CAMLreturn(Val_int(JSStringGetLength(JSString_val(js_string))));
+}
+
+CAMLprim value
+jsc_ml_string_max_size(value js_string)
+{
+  CAMLparam1(js_string);
+  CAMLreturn(Val_int(JSStringGetMaximumUTF8CStringSize(JSString_val(js_string))));
+}
+
+CAMLprim value
+jsc_ml_string_is_equal(value s1, value s2)
+{
+  CAMLparam2(s1, s2);
+  CAMLreturn(Val_bool(JSStringIsEqual(JSString_val(s1), JSString_val(s2))));
+
+}
+
+CAMLprim value
+jsc_ml_string_is_equal_utf8(value js_string, value ml_string)
+{
+  CAMLparam2(js_string, ml_string);
+  CAMLreturn(Val_bool(JSStringIsEqualToUTF8CString(JSString_val(js_string),
+						   String_val(ml_string))));
+}
 // CAMLprim value
 // jsc_ml_make_vm(value __attribute__((unused)) unit)
 // {
