@@ -1,8 +1,8 @@
-type js_ptr
+(* type js_ptr *)
 
-exception JavaScript_eval of string
+exception JavaScript_exception of string
 
-let () = Callback.register_exception "js-exn" (JavaScript_eval "")
+let () = Callback.register_exception "js-exn" (JavaScript_exception "")
 
 (* external make_vm : unit -> js_ptr = "jsc_ml_make_vm" *)
 (* external evaluate_script : js_ptr -> string -> string = "jsc_ml_eval_script" *)
@@ -39,13 +39,157 @@ module Context = struct
   external get_group : js_context -> js_context_group = "jsc_ml_get_group"
 end
 
+module JSValue = struct
+  type t = Undefined | Null | Bool | Number | String | Object
+  external get_type : js_context -> js_value -> t = "jsc_ml_value_get_type"
+  external is_undefined : js_context -> js_value -> bool =
+    "jsc_ml_value_is_undefined"
+  external is_null : js_context -> js_value -> bool = "jsc_ml_value_is_null"
+  external is_bool : js_context -> js_value -> bool = "jsc_ml_value_is_bool"
+  external is_number : js_context -> js_value -> bool = "jsc_ml_value_is_number"
+  external is_string : js_context -> js_value -> bool = "jsc_ml_value_is_string"
+  external is_object : js_context -> js_value -> bool = "jsc_ml_value_is_object"
+  external is_object_of_class : js_context -> js_value -> js_class -> bool =
+    "jsc_ml_value_is_object_of_class"
+  external is_equal : js_context -> js_value -> js_value -> bool =
+    "jsc_ml_value_is_equal"
+  external is_strict_equal : js_context -> js_value -> js_value -> bool =
+    "jsc_ml_value_is_strict_equal"
+
+  (* Stopped at Is Instance of Constructor *)
+end
+
 module Object = struct
   type property_attribute = None | Read_only | Don't_enum | Don't_delete
   type class_attribute = None | No_automatic_prototype
   type initializer_cb = js_context -> js_object -> unit
   type finalizer_cb = js_object -> unit
   type has_property_cb = js_context -> js_object -> js_string -> bool
+  type get_property_cb_exn = js_context -> js_object -> js_string -> js_value
+  type set_property_cb_exn = js_context -> js_object -> js_string -> js_value -> bool
+  type delete_property_cb_exn = js_context -> js_object -> js_string -> bool
+  type get_property_names_cb =
+    js_context -> js_object -> js_property_name_accumulator -> unit
+  type call_as_function_cb_exn =
+    js_context -> js_object -> js_object -> int -> js_value list -> js_value
+  type call_as_constructor_cb_exn =
+      js_context -> js_object -> int -> js_value list -> js_object
+  type has_instance_cb_exn =
+    js_context -> js_object -> js_value -> bool
+  type convert_to_type_cb_exn =
+    js_context -> js_object -> JSValue.t -> js_value
+  type static_value = {
+    name : string;
+    get_prop_cb_exn : get_property_cb_exn;
+    set_prop_cb_exn : set_property_cb_exn;
+    attributes : property_attribute list
+  }
+  type static_function = {
+    name : string;
+    call_as_function : call_as_function_cb_exn;
+    attributes : property_attribute list
+  }
+  type class_definition = {
+    version : int;
+    mutable attributes : class_attribute list;
+    mutable class_name : string;
+    mutable parent_class : js_class option;
+    mutable static_values : static_value list;
+    mutable static_functions : static_function list;
+    mutable init : initializer_cb option;
+    mutable finalizer : finalizer_cb option;
+    mutable has_property : has_property_cb option;
+    mutable get_property : get_property_cb_exn option;
+    mutable set_property : set_property_cb_exn option;
+    mutable delete_property : delete_property_cb_exn option;
+    mutable get_property_names : get_property_names_cb option;
+    mutable call_as_function : call_as_function_cb_exn option;
+    mutable call_as_constructor : call_as_constructor_cb_exn option;
+    mutable has_instance : has_instance_cb_exn option;
+    mutable convert_to_type : convert_to_type_cb_exn option;
+  }
+  let class_definition_empty () = {
+    version = 0; attributes = []; class_name = ""; parent_class = None;
+    static_values = []; static_functions = []; init = None;
+    finalizer = None; has_property = None; get_property = None;
+    set_property = None; delete_property = None; get_property_names = None;
+    call_as_function = None; call_as_constructor = None; has_instance = None;
+    convert_to_type = None;
+  }
+  external class_create : class_definition -> js_class = "jsc_ml_object_class_create"
+  external class_retain : js_class -> unit = "jsc_ml_object_class_retain" [@@noalloc]
+  external class_release : js_class -> unit = "jsc_ml_object_class_release" [@@noalloc]
+  external object_make : js_context -> js_class option -> 'private_data option =
+    "jsc_ml_object_object_make"
+  external object_make_with_callback :
+    js_context -> js_string option -> call_as_function_cb_exn -> js_object =
+    "jsc_ml_object_make_with_callback"
+  external object_make_constructor :
+    js_context -> js_class option -> call_as_constructor_cb_exn option -> js_object =
+    "jsc_ml_object_make_constructor"
+  external object_make_array_exn : js_context -> int -> js_value list -> js_object =
+    "jsc_ml_object_make_array"
+  external object_make_date_exn : js_context -> int -> js_value list -> js_object =
+    "jsc_ml_object_make_date"
+  external object_make_error_exn : js_context -> int -> js_value list -> js_object =
+    "jsc_ml_object_make_error"
+  external object_make_regexp_exn : js_context -> int -> js_value list -> js_object =
+    "jsc_ml_object_make_regexp"
+  external object_make_function_exn :
+    js_context -> js_string option -> int ->
+    js_string list -> js_string -> js_string option -> int -> js_object =
+    "jsc_ml_object_make_function_byte"
+    "jsc_ml_object_make_function_native"
+  external object_get_prototype : js_context -> js_object -> js_value =
+    "jsc_ml_object_get_prototype"
+  external object_set_prototype : js_context -> js_object -> js_value -> unit =
+    "jsc_ml_object_set_prototype"
+  external object_has_property : js_context -> js_object -> js_string -> bool =
+    "jsc_ml_object_has_property"
+  external object_get_property_exn : js_context -> js_object -> js_string -> js_value =
+    "jsc_ml_object_get_property"
+  external object_set_property_exn :
+    js_context -> js_object -> js_string -> js_value -> property_attribute list -> unit =
+    "jsc_ml_object_set_property"
+  external object_delete_property_exn :
+    js_context -> js_object -> js_string -> bool = "jsc_ml_object_delete_property"
+  external object_get_property_at_index_exn :
+    js_context -> js_object -> int -> js_value =
+    "jsc_ml_object_get_property_at_index"
+  external object_set_property_at_index_exn :
+    js_context -> js_object -> int -> js_value -> unit =
+    "jsc_ml_object_set_property_at_index"
+  external object_get_private_data :
+    js_object -> 'any_private_data option = "jsc_ml_object_get_private"
+  external object_set_private_data :
+    js_object -> 'any_private_data -> bool = "jsc_ml_object_set_private"
+  external object_is_function :
+    js_context -> js_object -> bool = "jsc_ml_object_is_function"
+  external object_call_as_function_exn :
+    js_context -> js_object -> this:js_object option -> int -> js_value list -> js_value =
+    "jsc_ml_object_call_as_function"
+  external object_is_constructor : js_context -> js_object -> bool =
+    "jsc_ml_object_is_constructor"
+  external object_call_as_constructor_exn :
+    js_context -> js_object -> int -> js_value list -> js_object =
+    "jsc_ml_object_call_as_constructor"
+  external object_copy_property_names :
+    js_context -> js_object -> js_property_name_array =
+    "jsc_ml_object_copy_property_names"
+  external property_name_array_retain :
+    js_property_name_array -> unit = "jsc_ml_property_name_array_retain"
+  external property_name_array_release :
+    js_property_name_array -> unit = "jsc_ml_property_name_array_release"
+  external property_name_length : js_property_name_array -> int =
+    "jsc_ml_property_name_array_length"
+  external property_name_at_index :
+    js_property_name_array -> int -> js_string =
+    "jsc_ml_property_name_at_index"
+  external property_name_accumulator_add_name :
+    js_property_name_accumulator -> js_string -> unit =
+    "jsc_ml_name_accumulator_add_name"
 end
+
 
 module String = struct
   external create_with_chars : string -> int -> js_string =
@@ -62,9 +206,6 @@ module String = struct
     "jsc_ml_string_is_equal_utf8"
 end
 
-module JSValue = struct
-
-end
 
 
 
