@@ -20,7 +20,11 @@ Library javascriptcore
   install: true
   if system(macosx)
     CCOpt:
-      -std=c++14 -O2 -x c++ -stdlib=libc++
+      -g -std=c++14 -x c++ -stdlib=libc++
+      # -Wextra
+      -fno-omit-frame-pointer
+      -fsanitize-undefined-trap-on-error
+      -fno-optimize-sibling-calls
     CClib: -framework JavaScriptCore -lc++
   else
     CCOpt:
@@ -28,8 +32,8 @@ Library javascriptcore
     CClib:
       -ljavascriptcoregtk-4.0 -lc++
   NativeOpt:
-    -g -w +a-4-40..42-44-45-48 -cclib
-    -fsanitize=address -ccopt -fsanitize=address
+    -g -w +a-4-40..42-44-45-48
+#    -cclib -fsanitize=address -ccopt -fsanitize=address
   ByteOpt: -g -w +a-4-40..42-44-45-48
   CSources:
     jsc_ml_values.h,

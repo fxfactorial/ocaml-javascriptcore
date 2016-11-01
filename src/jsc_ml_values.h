@@ -43,20 +43,24 @@
 
 CAMLprim value Val_some(value);
 
-#define JSVirtual_machine_val(v)		\
-  (*((JSGlobalContextRef*)Data_custom_val(v)))
+// #define JSVirtual_machine_val(v)		\
+//   (*((JSGlobalContextRef*)Data_custom_val(v)))
 
 #define JSContext_group_val(v) ((JSContextGroupRef)Field(v, 0))
 #define JSClass_val(v) ((JSClassRef)Field(v, 0))
-#define JSGlobal_context_val(v) ((JSGlobalContextRef)Field(v, 0))
-#define JSContext_val(v) ((JSContextRef)Field(v, 0))
+#define JSContext_val(v) ((JSGlobalContextRef)Field(v, 0))
 #define JSString_val(v) ((JSStringRef)Field(v, 0))
+#define JSValue_val(v) ((JSValueRef)Field(v, 0))
+#define JSObject_val(v) ((JSObjectRef)Field(v, 0))
 
 extern struct custom_operations jsc_context_ops;
 
-const char *jsvalue_to_utf8_string(JSContextRef, JSValueRef);
-CAMLprim value jsc_string_to_ml(JSStringRef);
-JSStringRef ml_string_to_jsc_string(value);
-CAMLprim value make_ml_jsobject_ref(void);
+extern "C" {
 
+  const char *jsvalue_to_utf8_string(JSGlobalContextRef, JSValueRef);
+  CAMLprim value jsc_string_to_ml(JSStringRef);
+  JSStringRef ml_string_to_jsc_string(value);
+  CAMLprim value make_ml_jsobject_ref(void);
+  CAMLprim value jsc_ml_print_js(value, value);
+}
 #endif

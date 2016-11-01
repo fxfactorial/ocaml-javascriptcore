@@ -20,6 +20,8 @@
 #include <unordered_map>
 #include <mutex>
 #include <string>
+#include <vector>
+#include <iostream>
 
 #include <JavaScriptCore/JavaScript.h>
 
@@ -88,7 +90,7 @@ extern "C" {
   jsc_ml_global_context_retain(value global_context)
   {
     CAMLparam1(global_context);
-    JSGlobalContextRetain(JSGlobal_context_val(global_context));
+    JSGlobalContextRetain(JSContext_val(global_context));
     CAMLreturn(Val_unit);
   }
 
@@ -96,7 +98,7 @@ extern "C" {
   jsc_ml_global_context_release(value global_context)
   {
     CAMLparam1(global_context);
-    JSGlobalContextRelease(JSGlobal_context_val(global_context));
+    JSGlobalContextRelease(JSContext_val(global_context));
     CAMLreturn(Val_unit);
   }
 
@@ -120,18 +122,18 @@ extern "C" {
     CAMLreturn(wrapper);
   }
 
-  CAMLprim value
-  jsc_ml_string_create_with_chars(value chars, value length)
-  {
-    CAMLparam2(chars, length);
-    CAMLlocal1(wrapper);
-    wrapper = caml_alloc(sizeof(JSStringRef), Abstract_tag);
-    Store_field(wrapper,
-		0,
-		(value)JSStringCreateWithCharacters((const unsigned short *)String_val(chars),
-						    Int_val(length)));
-    CAMLreturn(wrapper);
-  }
+  // CAMLprim value
+  // jsc_ml_string_create_with_chars(value chars, value length)
+  // {
+  //   CAMLparam2(chars, length);
+  //   CAMLlocal1(wrapper);
+  //   wrapper = caml_alloc(sizeof(JSStringRef), Abstract_tag);
+  //   Store_field(wrapper,
+  // 		0,
+  // 		(value)JSStringCreateWithCharacters((const unsigned short *)String_val(chars),
+  // 						    Int_val(length)));
+  //   CAMLreturn(wrapper);
+  // }
 
   CAMLprim value
   jsc_ml_string_create_with_utf8(value s)
@@ -139,7 +141,9 @@ extern "C" {
     CAMLparam1(s);
     CAMLlocal1(wrapper);
     wrapper = caml_alloc(sizeof(JSStringRef), Abstract_tag);
-    Store_field(wrapper, 0, (value)JSStringCreateWithUTF8CString(String_val(s)));
+    Store_field(wrapper,
+		0,
+		(value)JSStringCreateWithUTF8CString(caml_strdup(String_val(s))));
     CAMLreturn(wrapper);
   }
 
@@ -242,9 +246,65 @@ extern "C" {
 	CAMLreturn0;
       };
     }
-    // if (Field(class_def, 7) != Val_none) {
-    //   starter.finalize = []()
-    // }
+    if (Field(class_def, 7) != Val_none) {
+      starter.finalize = [](auto obj) {
+	CAMLparam0();
+	CAMLlocal2(t, obj_w);
+	const char *identifier = nullptr;
+	{
+	  std::lock_guard<std::mutex> guard(class_definition_lock);
+	  identifier = static_cast<const char *>(JSObjectGetPrivate(obj));
+	}
+	t = class_definition_lookup[identifier];
+	obj_w = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
+	Store_field(obj_w, 0, (value)obj_w);
+	caml_callback(Some_val(Field(t, 7)), obj_w);
+	CAMLreturn0;
+      };
+    }
+    if (Field(class_def, 8) != Val_none) {
+      starter.hasProperty = [](auto ctx, auto obj, auto prop_name) {
+	CAMLparam0();
+	CAMLlocal4(t, ctx_w, obj_w, prop_name_w);
+	const char *identifier = nullptr;
+	{
+	  std::lock_guard<std::mutex> guard(class_definition_lock);
+	  identifier = static_cast<const char *>(JSObjectGetPrivate(obj));
+	}
+	t = class_definition_lookup[identifier];
+	ctx_w = caml_alloc(sizeof(JSContextRef), Abstract_tag);
+	obj_w = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
+	prop_name_w = caml_alloc(sizeof(JSStringRef), Abstract_tag);
+	Store_field(ctx_w, 0, (value)ctx);
+	Store_field(obj_w, 0, (value)obj);
+	Store_field(prop_name_w, 0, (value)prop_name);
+	bool result = Val_bool(caml_callback3(Some_val(Field(t, 8)),
+					      ctx_w,
+					      obj_w,
+					      prop_name_w));
+	CAMLreturnT(bool, result);
+      };
+    }
+
+    if (Field(class_def, 8) != Val_none) {
+      starter.callAsFunction = [](auto ctx,
+				  auto fn,
+				  auto this_object,
+				  auto arg_count,
+				  auto args,
+				  auto *exn) {
+	CAMLparam0();
+	CAMLlocal1(t);
+	const char *identifier = nullptr;
+	{
+	  std::lock_guard<std::mutex> guard(class_definition_lock);
+	  identifier = static_cast<const char *>(JSObjectGetPrivate(fn));
+	}
+	printf("Called as function: Identifier: %s\n", identifier);
+	CAMLreturnT(JSValueRef, nullptr);
+      };
+    }
+
     wrapper = caml_alloc(sizeof(JSClassRef), Abstract_tag);
     Store_field(wrapper, 0, (value)JSClassCreate(&starter));
     CAMLreturn(wrapper);
@@ -264,6 +324,98 @@ extern "C" {
     CAMLreturn(wrapper);
   }
 
+  CAMLprim value
+  jsc_ml_object_make_function(value create_function_record)
+  {
+    CAMLparam1(create_function_record);
+    CAMLlocal1(wrapper);
+    wrapper = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
+    auto ctx = JSContext_val(Field(create_function_record, 0));
+    auto name =
+      Field(create_function_record, 1) != Val_none ?
+      JSString_val(Some_val(Field(create_function_record, 1))) : nullptr;
+    auto parameter_count = Wosize_val(Field(create_function_record, 2));
+    std::vector<JSStringRef> parameter_names;
+    for (auto i = 0; i < parameter_count; i++)
+      parameter_names.push_back(JSString_val(Field(Field(create_function_record, 2), i)));
+    auto body = JSString_val(Field(create_function_record, 3));
+    auto source_url =
+      Field(create_function_record, 4) != Val_none ?
+      JSString_val(Some_val(Field(create_function_record, 4))) : nullptr;
+    auto starting_line = Int_val(Field(create_function_record, 5));
+
+    JSValueRef exception;
+    auto function_object =
+      JSObjectMakeFunction(ctx, nullptr, 0, nullptr, body, nullptr, 1, nullptr);
+    // auto function_object =
+    //   JSObjectMakeFunction(ctx,
+    // 			   name,
+    // 			   parameter_count,
+    // 			   parameter_count > 0 ? parameter_names.data() : nullptr,
+    // 			   body,
+    // 			   source_url,
+    // 			   starting_line,
+    // 			   nullptr);
+
+    Store_field(wrapper, 0, (value)function_object);
+    CAMLreturn(wrapper);
+  }
+
+  CAMLprim value
+  jsc_ml_object_call_as_function(value ctx,
+				 value fn,
+				 value maybe_this,
+				 value args)
+  {
+    CAMLparam4(ctx, fn, maybe_this, args);
+    CAMLlocal1(wrapper);
+    wrapper = caml_alloc(sizeof(JSValueRef), Abstract_tag);
+    JSValueRef exn;
+    // auto argc = Wosize_val(args);
+    // auto first_item = Field(args, 0);
+
+    auto call_result =
+      JSObjectCallAsFunction(JSContext_val(ctx),
+			     JSObject_val(fn),
+			     nullptr, 0, nullptr, nullptr);
+
+    // std::cout << jsvalue_to_utf8_string(JSContext_val(ctx), result) << std::endl;
+
+    // std::vector<JSValueRef> _args_;
+    // for (auto i = 0; i < argc; i++) {
+    //   void *item = Field(args, i);
+      // auto item = JSValue_val(Field(args, i));
+      // if (JSValueIsString(JSContext_val(ctx), item))
+      // 	printf("Oops, its actually a string already\n");
+      // auto c = JSContext_val(ctx);
+
+      // if (item) {
+      // 	printf("Wasn't null\n");
+      // }
+      // if (c) {
+      // 	printf("Ctx wasn null either\n");
+	// std::cout << jsvalue_to_utf8_string(c, item) << std::endl;
+      // }
+      // _args_.push_back(item);
+    // }
+    // auto this_obj =
+    //   maybe_this != Val_none ? JSObject_val(Some_val(maybe_this)) : nullptr;
+
+    // std::cout << _args_.size() << std::endl;
+    // std::cout << argc << std::endl;
+
+    // _args_.reserve(argc);
+
+    // auto call_result = JSObjectCallAsFunction(JSContext_val(ctx),
+    // 					      JSObject_val(obj),
+    // 					      this_obj,
+    // 					      argc,
+    // 					      &_args_[0],
+    					      // argc > 0 ? _args_.data() : nullptr,
+    					      // nullptr);
+    Store_field(wrapper, 0, (value)call_result);
+    CAMLreturn(wrapper);
+  }
 
   // CAMLprim value
   // jsc_ml_make_vm(value __attribute__((unused)) unit)

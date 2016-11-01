@@ -8,6 +8,8 @@
  * This file is a part of ocaml-javascriptcore.
  */
 
+#include <iostream>
+
 #include <JavaScriptCore/JavaScript.h>
 
 #include "jsc_ml_values.h"
@@ -28,51 +30,46 @@
 // }
 // #endif
 
-static void
-jsc_ml_vm_finalize(value ctx)
-{
-  //DEBUG("Calling release for JS Virtual Machine");
-  return JSGlobalContextRelease(JSVirtual_machine_val(ctx));
+extern "C" {
+
+  /* caller must free the string */
+  const char*
+  jsvalue_to_utf8_string(JSGlobalContextRef ctx, JSValueRef v)
+  {
+    JSStringRef valueAsString = JSValueToStringCopy(ctx, v, NULL);
+    size_t jsSize = JSStringGetMaximumUTF8CStringSize(valueAsString);
+    char* jsBuffer = (char*)malloc(jsSize);
+    JSStringGetUTF8CString(valueAsString, jsBuffer, jsSize);
+    JSStringRelease(valueAsString);
+    return jsBuffer;
+  }
+
+  CAMLprim value
+  jsc_string_to_ml(JSStringRef str)
+  {
+    CAMLparam0();
+    //DEBUG("Converting JSC string into OCaml string");
+    size_t string_len = JSStringGetMaximumUTF8CStringSize(str);
+    char string_buffer[string_len];
+    JSStringGetUTF8CString(str, string_buffer, string_len);
+    CAMLreturn(caml_copy_string(string_buffer));
+  }
+
+  JSStringRef
+  ml_string_to_jsc_string(value ml_string)
+  {
+    //DEBUG("Converting OCaml string to JSC string");
+    return JSStringCreateWithUTF8CString(caml_strdup(String_val(ml_string)));
+  }
+
+  CAMLprim value
+  jsc_ml_print_js(value ctx, value jsvalue)
+  {
+    CAMLparam2(ctx, jsvalue);
+    auto as_string =
+      jsvalue_to_utf8_string(JSContext_val(ctx), JSValue_val(jsvalue));
+    std::cout << as_string << std::endl;
+    free((void*)as_string);
+    CAMLreturn(Val_unit);
+  }
 }
-
-struct custom_operations
-jsc_context_ops = {
-  (char*)"jsc.vm",
-  jsc_ml_vm_finalize,
-  custom_compare_default,
-  custom_hash_default,
-  custom_serialize_default,
-  custom_deserialize_default,
-  custom_compare_ext_default
-};
-
-/* caller must free the string */
-const char*
-jsvalue_to_utf8_string(JSContextRef ctx, JSValueRef v)
-{
-  JSStringRef valueAsString = JSValueToStringCopy(ctx, v, NULL);
-
-  size_t jsSize = JSStringGetMaximumUTF8CStringSize(valueAsString);
-  char* jsBuffer = (char*)malloc(jsSize);
-  JSStringGetUTF8CString(valueAsString, jsBuffer, jsSize);
-  JSStringRelease(valueAsString);
-  return jsBuffer;
-}
-
-value
-jsc_string_to_ml(JSStringRef str)
-{
-  //DEBUG("Converting JSC string into OCaml string");
-  size_t string_len = JSStringGetMaximumUTF8CStringSize(str);
-  char string_buffer[string_len];
-  JSStringGetUTF8CString(str, string_buffer, string_len);
-  return caml_copy_string(string_buffer);
-}
-
-JSStringRef
-ml_string_to_jsc_string(value ml_string)
-{
-  //DEBUG("Converting OCaml string to JSC string");
-  return JSStringCreateWithUTF8CString(caml_strdup(String_val(ml_string)));
-}
-
