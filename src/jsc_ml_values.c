@@ -30,7 +30,7 @@
 static void
 jsc_ml_vm_finalize(value ctx)
 {
-  DEBUG("Calling release for JS Virtual Machine");
+  //DEBUG("Calling release for JS Virtual Machine");
   return JSGlobalContextRelease(JSVirtual_machine_val(ctx));
 }
 
@@ -61,7 +61,7 @@ jsvalue_to_utf8_string(JSContextRef ctx, JSValueRef v)
 value
 jsc_string_to_ml(JSStringRef str)
 {
-  DEBUG("Converting JSC string into OCaml string");
+  //DEBUG("Converting JSC string into OCaml string");
   size_t string_len = JSStringGetMaximumUTF8CStringSize(str);
   char string_buffer[string_len];
   JSStringGetUTF8CString(str, string_buffer, string_len);
@@ -71,7 +71,7 @@ jsc_string_to_ml(JSStringRef str)
 JSStringRef
 ml_string_to_jsc_string(value ml_string)
 {
-  DEBUG("Converting OCaml string to JSC string");
+  //DEBUG("Converting OCaml string to JSC string");
   return JSStringCreateWithUTF8CString(caml_strdup(String_val(ml_string)));
 }
 

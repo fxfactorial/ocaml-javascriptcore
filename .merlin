@@ -1,3 +1,2 @@
 B _build/src
-PKG compiler-libs
-PKG javascriptcore
+PKG javascriptcore uuidm
