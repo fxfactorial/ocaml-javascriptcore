@@ -1,5 +1,4 @@
-open JavaScriptCore
-(* let options = *)
+  (* let options = *)
   (*   Object.class_definition_empty () *)
   (* in *)
   (* options.Object.init <- Some (fun ctx obj -> *)
@@ -23,18 +22,22 @@ open JavaScriptCore
 
 let () =
   let context = Context.context_create None in
-  let script = String.create_with_utf8 "return new Date" in
+  let script = String.create_with_utf8 "return some_variable.toUpperCase()" in
   let fn =
     Object.(object_make_function_exn
-      {context;
-       function_name = None;
-       parameter_names = [||];
-       function_body = script;
-       source_url = None;
-       starting_line_number = 1;
-      })
+              {context;
+               function_name = None;
+               parameter_names = [|String.create_with_utf8 "some_variable"|];
+               function_body = script;
+               source_url = None;
+               starting_line_number = 1;
+              })
   in
   let result =
-    Object.object_call_as_function_exn context fn ~this:None [||]
+    Object.object_call_as_function_exn
+      context
+      fn
+      ~this:None
+      [|JSValue.jsstring_value_of_string context "hello world"|]
   in
   print_js context result

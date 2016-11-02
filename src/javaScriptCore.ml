@@ -14,24 +14,20 @@ let () = Callback.register_exception "js-exn" (JavaScript_exception "")
 type js_context_group
 type js_context
 type js_value
-type js_string = js_value
+type js_string
 type js_class
 type js_property_name_array
 type js_property_name_accumulator
 type js_object = js_value
 
-external print_js : js_context -> js_string -> unit = "jsc_ml_print_js"
+external print_js : js_context -> js_value -> unit = "jsc_ml_print_js"
 
 module Context = struct
   external create_context_group : unit -> js_context_group = "jsc_ml_context_group_create"
   external retain : js_context_group -> unit = "jsc_ml_context_group_retain" [@@noalloc]
   external release : js_context_group -> unit = "jsc_ml_context_group_release" [@@noalloc]
-
-
   external context_create :
     js_class option -> js_context = "jsc_ml_global_context_create"
-
-
   external context_create_in_group :
     js_context_group option -> js_class option -> js_context
     = "jsc_ml_global_context_create_in_group"
@@ -46,6 +42,8 @@ end
 
 module JSValue = struct
   type t = Undefined | Null | Bool | Number | String | Object
+  external jsstring_value_of_string :
+    js_context -> string -> js_value = "jsc_ml_value_of_ml_string"
   (* external get_type : js_context -> js_value -> t = "jsc_ml_value_get_type" *)
   (* external is_undefined : js_context -> js_value -> bool = *)
   (*   "jsc_ml_value_is_undefined" *)
@@ -141,7 +139,7 @@ module Object = struct
   (*   "jsc_ml_object_make_error" *)
   (* external object_make_regexp_exn : js_context -> int -> js_value array -> js_object = *)
   (*   "jsc_ml_object_make_regexp" *)
-  type make_function = {
+  type make_function_params = {
     context : js_context;
     function_name : js_string option;
     parameter_names : js_string array;
@@ -150,7 +148,7 @@ module Object = struct
     starting_line_number : int
   }
   external object_make_function_exn :
-    make_function -> js_object = "jsc_ml_object_make_function"
+    make_function_params -> js_object = "jsc_ml_object_make_function"
 
   (* external object_get_prototype : js_context -> js_object -> js_value = *)
   (*   "jsc_ml_object_get_prototype" *)

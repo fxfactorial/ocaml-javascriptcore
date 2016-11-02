@@ -33,6 +33,14 @@ let () =
 #require "oasis.dynrun";;
 open OASISDynRun;;
 
+let _ =
+  BaseEnv.var_define
+    "DEBUGGING"
+    (fun () ->
+       try ignore (Sys.getenv "JSC_ML_DEBUG"); "_DEBUG"
+       with Not_found -> "_")
+    ()
+
 let setup_t = BaseCompat.Compat_0_4.adapt_setup_t setup_t
 open BaseCompat.Compat_0_4
 (* OASIS_STOP *)

@@ -11,23 +11,23 @@
 #ifndef JSC_ML_VALUES_H
 #define JSC_ML_VALUES_H
 
-// #ifndef _DEBUG
-// #define DEBUG(s)
-// #else
-// #include <iostream>
-// #include <string>
-// #include <time.h>
+#ifndef _DEBUG
+#define DEBUG(s)
+#else
+#include <iostream>
+#include <string>
+#include <time.h>
 
-// const std::string current_date_time(void);
-// // http://stackoverflow.com/questions/997946/how-to-get-current-time-and-date-in-c
-// // TrungTN's was easiest to use
-// #define DEBUG(s)				\
-//   std::cout << "\033[1;33m["			\
-//   << current_date_time ()			\
-//   << "]\036" << " \033[1;36m["			\
-//   <<  __PRETTY_FUNCTION__ << "]\033[0m: "	\
-//   << s << "\n"
-// #endif
+const std::string current_date_time(void);
+// http://stackoverflow.com/questions/997946/how-to-get-current-time-and-date-in-c
+// TrungTN's was easiest to use
+#define DEBUG(s)				\
+  std::cout << "\033[1;33m["			\
+  << current_date_time ()			\
+  << "]\036" << " \033[1;36m["			\
+  <<  __PRETTY_FUNCTION__ << "]\033[0m: "	\
+  << s << "\n"
+#endif
 
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
@@ -62,5 +62,6 @@ extern "C" {
   JSStringRef ml_string_to_jsc_string(value);
   CAMLprim value make_ml_jsobject_ref(void);
   CAMLprim value jsc_ml_print_js(value, value);
+
 }
 #endif

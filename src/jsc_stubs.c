@@ -122,18 +122,18 @@ extern "C" {
     CAMLreturn(wrapper);
   }
 
-  // CAMLprim value
-  // jsc_ml_string_create_with_chars(value chars, value length)
-  // {
-  //   CAMLparam2(chars, length);
-  //   CAMLlocal1(wrapper);
-  //   wrapper = caml_alloc(sizeof(JSStringRef), Abstract_tag);
-  //   Store_field(wrapper,
-  // 		0,
-  // 		(value)JSStringCreateWithCharacters((const unsigned short *)String_val(chars),
-  // 						    Int_val(length)));
-  //   CAMLreturn(wrapper);
-  // }
+  CAMLprim value
+  jsc_ml_value_of_ml_string(value ctx, value ml_string)
+  {
+    CAMLparam2(ctx, ml_string);
+    CAMLlocal1(wrapper);
+    wrapper = caml_alloc(sizeof(JSValueRef), Abstract_tag);
+    auto as_value =
+      JSValueMakeString(JSContext_val(ctx),
+			JSStringCreateWithUTF8CString(String_val(ml_string)));
+    Store_field(wrapper, 0, (value)as_value);
+    CAMLreturn(wrapper);
+  }
 
   CAMLprim value
   jsc_ml_string_create_with_utf8(value s)
@@ -342,20 +342,23 @@ extern "C" {
     auto source_url =
       Field(create_function_record, 4) != Val_none ?
       JSString_val(Some_val(Field(create_function_record, 4))) : nullptr;
-    auto starting_line = Int_val(Field(create_function_record, 5));
+    int starting_line = Int_val(Field(create_function_record, 5));
 
-    JSValueRef exception;
+    JSValueRef exception = nullptr;
+
     auto function_object =
-      JSObjectMakeFunction(ctx, nullptr, 0, nullptr, body, nullptr, 1, nullptr);
-    // auto function_object =
-    //   JSObjectMakeFunction(ctx,
-    // 			   name,
-    // 			   parameter_count,
-    // 			   parameter_count > 0 ? parameter_names.data() : nullptr,
-    // 			   body,
-    // 			   source_url,
-    // 			   starting_line,
-    // 			   nullptr);
+      JSObjectMakeFunction(ctx,
+    			   name,
+    			   parameter_count,
+    			   parameter_count > 0 ? parameter_names.data() : nullptr,
+    			   body,
+    			   source_url,
+    			   starting_line,
+    			   &exception);
+
+    if (exception)
+      caml_raise_with_string(*caml_named_value("js-exn"),
+			     jsvalue_to_utf8_string(ctx, exception));
 
     Store_field(wrapper, 0, (value)function_object);
     CAMLreturn(wrapper);
@@ -370,49 +373,20 @@ extern "C" {
     CAMLparam4(ctx, fn, maybe_this, args);
     CAMLlocal1(wrapper);
     wrapper = caml_alloc(sizeof(JSValueRef), Abstract_tag);
+    DEBUG("CALLED!");
     JSValueRef exn;
-    // auto argc = Wosize_val(args);
-    // auto first_item = Field(args, 0);
-
-    auto call_result =
-      JSObjectCallAsFunction(JSContext_val(ctx),
-			     JSObject_val(fn),
-			     nullptr, 0, nullptr, nullptr);
-
-    // std::cout << jsvalue_to_utf8_string(JSContext_val(ctx), result) << std::endl;
-
-    // std::vector<JSValueRef> _args_;
-    // for (auto i = 0; i < argc; i++) {
-    //   void *item = Field(args, i);
-      // auto item = JSValue_val(Field(args, i));
-      // if (JSValueIsString(JSContext_val(ctx), item))
-      // 	printf("Oops, its actually a string already\n");
-      // auto c = JSContext_val(ctx);
-
-      // if (item) {
-      // 	printf("Wasn't null\n");
-      // }
-      // if (c) {
-      // 	printf("Ctx wasn null either\n");
-	// std::cout << jsvalue_to_utf8_string(c, item) << std::endl;
-      // }
-      // _args_.push_back(item);
-    // }
-    // auto this_obj =
-    //   maybe_this != Val_none ? JSObject_val(Some_val(maybe_this)) : nullptr;
-
-    // std::cout << _args_.size() << std::endl;
-    // std::cout << argc << std::endl;
-
-    // _args_.reserve(argc);
-
-    // auto call_result = JSObjectCallAsFunction(JSContext_val(ctx),
-    // 					      JSObject_val(obj),
-    // 					      this_obj,
-    // 					      argc,
-    // 					      &_args_[0],
-    					      // argc > 0 ? _args_.data() : nullptr,
-    					      // nullptr);
+    auto argc = Wosize_val(args);
+    auto this_obj =
+      maybe_this != Val_none ? JSObject_val(Some_val(maybe_this)) : nullptr;
+    std::vector<JSValueRef> _args_;
+    _args_.reserve(argc);
+    for (auto i = 0; i < argc; i++) _args_.push_back(JSValue_val(Field(args, i)));
+    auto call_result = JSObjectCallAsFunction(JSContext_val(ctx),
+					      JSObject_val(fn),
+    					      this_obj,
+    					      argc,
+    					      argc > 0 ? _args_.data() : nullptr,
+    					      &exn);
     Store_field(wrapper, 0, (value)call_result);
     CAMLreturn(wrapper);
   }

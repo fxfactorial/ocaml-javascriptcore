@@ -14,21 +14,21 @@
 
 #include "jsc_ml_values.h"
 
-// #ifndef _DEBUG
-// #else
-// const std::string
-// current_date_time()
-// {
-//   time_t     now = time(0);
-//   struct tm  tstruct;
-//   char       buf[80];
-//   tstruct = *localtime(&now);
-//   // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
-//   // for more information about date/time format
-//   strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
-//   return buf;
-// }
-// #endif
+#ifndef _DEBUG
+#else
+const std::string
+current_date_time()
+{
+  time_t     now = time(0);
+  struct tm  tstruct;
+  char       buf[80];
+  tstruct = *localtime(&now);
+  // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+  // for more information about date/time format
+  strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+  return buf;
+}
+#endif
 
 extern "C" {
 
@@ -55,12 +55,12 @@ extern "C" {
     CAMLreturn(caml_copy_string(string_buffer));
   }
 
-  JSStringRef
-  ml_string_to_jsc_string(value ml_string)
-  {
-    //DEBUG("Converting OCaml string to JSC string");
-    return JSStringCreateWithUTF8CString(caml_strdup(String_val(ml_string)));
-  }
+  // JSStringRef
+  // ml_string_to_jsc_string(value ml_string)
+  // {
+  //   //DEBUG("Converting OCaml string to JSC string");
+  //   return JSStringCreateWithUTF8CString(caml_strdup(String_val(ml_string)));
+  // }
 
   CAMLprim value
   jsc_ml_print_js(value ctx, value jsvalue)
