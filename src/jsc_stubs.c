@@ -339,10 +339,7 @@ extern "C" {
 				     auto *exn) -> JSObjectRef {
 	CAMLparam0();
 	CAMLlocal5(ctx_w, ctor_object_w, args_w, wrapper_result, ml_cb);
-
-	// if (exn)
-	//   caml_raise_with_string(js_exn,
-	// 			 jsvalue_to_utf8_string(ctx, *exn));
+	// Need to store the exception in exn
 	auto *g =
 	static_cast<std::unordered_map<std::string, value>*>(JSObjectGetPrivate(ctor_object));
 

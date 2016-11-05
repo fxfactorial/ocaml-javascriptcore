@@ -28,9 +28,9 @@ Library javascriptcore
     CClib: -framework JavaScriptCore -lc++
   else
     CCOpt:
-      -I/usr/include/webkitgtk-4.0 -std=c++14 -O2
+      -I/usr/include/webkitgtk-4.0 -std=c++14 -O2 -x c++
     CClib:
-      -ljavascriptcoregtk-4.0 -lc++
+      -ljavascriptcoregtk-4.0 -lstdc++
   NativeOpt:
     -g -w +a-4-40..42-44-45-48
 #    -cclib -fsanitize=address -ccopt -fsanitize=address
