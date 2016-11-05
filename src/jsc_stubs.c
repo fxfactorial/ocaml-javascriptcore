@@ -220,6 +220,19 @@ extern "C" {
 
   // will I ever remove it? caml_remove_global_root(value *)
 
+  auto cb_func = [](auto obj, auto spot){
+    CAMLparam0();
+    CAMLlocal1(ml_cb);
+    auto *g =
+    static_cast<std::unordered_map<std::string, value>*>(JSObjectGetPrivate(obj));
+    {
+      std::lock_guard<std::mutex> guard(class_definition_lock);
+      const char *pulled = String_val((*g)["class_lookup_key"]);
+      ml_cb = Some_val(Field(class_definition_lookup[pulled], spot));
+    }
+    CAMLreturn(ml_cb);
+  };
+
   // Warning, MASSIVE
   CAMLprim value
   jsc_ml_object_class_create(value
@@ -237,10 +250,11 @@ extern "C" {
     }
 
     JSClassDefinition starter = kJSClassDefinitionEmpty;
-    // if (Field(class_def, 1) != Val_emptylist) {
-    //   // TODO Come back to this, class_attributes
-    // }
     starter.className = caml_strdup(String_val(Field(class_def, 2)));
+
+    // if (Field(class_def, 1) != Val_emptylist) {
+      // TODO Come back to this, class_attributes
+    // }
     // if (Field(class_def, 3) != Val_none)
     //   starter.parentClass = JSClass_val(Some_val(Field(class_def, 3)));
 
@@ -250,65 +264,54 @@ extern "C" {
     // if (Field(class_def, 5) != Val_emptylist) {
     //   // Come back to this, static_functions
     // }
-    // if (Field(class_def, 6) != Val_none) {
-    //   starter.initialize = [](auto ctx, auto object) {
-    // 	CAMLparam0();
-    // 	CAMLlocal3(t, ctx_w, object_w);
-    // 	const char *identifier = nullptr;
-    // 	{
-    // 	  std::lock_guard<std::mutex> guard(class_definition_lock);
-    // 	  identifier = static_cast<const char *>(JSObjectGetPrivate(object));
-    // 	}
-    // 	if (identifier) {
-    // 	  t = class_definition_lookup[identifier];
-    // 	  ctx_w = caml_alloc(sizeof(JSContextRef), Abstract_tag);
-    // 	  object_w = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
-    // 	  Store_field(ctx_w, 0, (value)ctx);
-    // 	  Store_field(object_w, 0, (value)object);
-    // 	  caml_callback2(Some_val(Field(t, 6)), ctx_w, object_w);
-    // 	} else {
-    // 	  printf("Should be impossible\n");
-    // 	}
-    // 	CAMLreturn0;
-    //   };
-    // }
+
+
+    if (Field(class_def, 6) != Val_none) {
+      starter.initialize = [](auto ctx, auto object) {
+    	CAMLparam0();
+    	CAMLlocal3(ml_cb, ctx_w, object_w);
+	ml_cb = cb_func(object, 6);
+	ctx_w = caml_alloc(sizeof(JSContextRef), Abstract_tag);
+	object_w = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
+	Store_field(ctx_w, 0, (value)ctx);
+	Store_field(object_w, 0, (value)object);
+	caml_callback2(ml_cb, ctx_w, object_w);
+    	CAMLreturn0;
+      };
+    }
     // if (Field(class_def, 7) != Val_none) {
     //   starter.finalize = [](auto obj) {
     // 	CAMLparam0();
     // 	CAMLlocal2(t, obj_w);
-    // 	const char *identifier = nullptr;
-    // 	{
-    // 	  std::lock_guard<std::mutex> guard(class_definition_lock);
-    // 	  identifier = static_cast<const char *>(JSObjectGetPrivate(obj));
-    // 	}
-    // 	t = class_definition_lookup[identifier];
     // 	obj_w = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
     // 	Store_field(obj_w, 0, (value)obj_w);
     // 	caml_callback(Some_val(Field(t, 7)), obj_w);
     // 	CAMLreturn0;
     //   };
     // }
-    // if (Field(class_def, 8) != Val_none) {
-    //   starter.hasProperty = [](auto ctx, auto obj, auto prop_name) {
+    if (Field(class_def, 8) != Val_none) {
+      starter.hasProperty = [](auto ctx, auto obj, auto prop_name) {
+    	CAMLparam0();
+    	CAMLlocal4(ml_cb, ctx_w, obj_w, prop_name_w);
+	ml_cb = cb_func(obj, 8);
+    	ctx_w = caml_alloc(sizeof(JSContextRef), Abstract_tag);
+    	obj_w = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
+    	prop_name_w = caml_alloc(sizeof(JSStringRef), Abstract_tag);
+    	Store_field(ctx_w, 0, (value)ctx);
+    	Store_field(obj_w, 0, (value)obj);
+    	Store_field(prop_name_w, 0, (value)prop_name);
+    	bool result =
+	Val_bool(caml_callback3(ml_cb, ctx_w, obj_w, prop_name_w));
+    	CAMLreturnT(bool, result);
+      };
+    }
+
+    // if (Field(class_def, 9) != Val_none) {
+    //   starter.getProperty = [](auto ctx, auto obj, auto prop_name, auto *exn) {
     // 	CAMLparam0();
-    // 	CAMLlocal4(t, ctx_w, obj_w, prop_name_w);
-    // 	const char *identifier = nullptr;
-    // 	{
-    // 	  std::lock_guard<std::mutex> guard(class_definition_lock);
-    // 	  identifier = static_cast<const char *>(JSObjectGetPrivate(obj));
-    // 	}
-    // 	t = class_definition_lookup[identifier];
-    // 	ctx_w = caml_alloc(sizeof(JSContextRef), Abstract_tag);
-    // 	obj_w = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
-    // 	prop_name_w = caml_alloc(sizeof(JSStringRef), Abstract_tag);
-    // 	Store_field(ctx_w, 0, (value)ctx);
-    // 	Store_field(obj_w, 0, (value)obj);
-    // 	Store_field(prop_name_w, 0, (value)prop_name);
-    // 	bool result = Val_bool(caml_callback3(Some_val(Field(t, 8)),
-    // 					      ctx_w,
-    // 					      obj_w,
-    // 					      prop_name_w));
-    // 	CAMLreturnT(bool, result);
+    // 	CAMLlocal5(ml_cb, ctx_w, obj_w, prop_name_w, wrapper);
+	
+    // 	CAMLreturnT(JSValueRef, JSValue_val(wrapper));
     //   };
     // }
 
@@ -340,15 +343,8 @@ extern "C" {
 	CAMLparam0();
 	CAMLlocal5(ctx_w, ctor_object_w, args_w, wrapper_result, ml_cb);
 	// Need to store the exception in exn
-	auto *g =
-	static_cast<std::unordered_map<std::string, value>*>(JSObjectGetPrivate(ctor_object));
 
-	{
-	  std::lock_guard<std::mutex> guard(class_definition_lock);
-	  const char *pulled = String_val((*g)["class_lookup_key"]);
-	  ml_cb = Some_val(Field(class_definition_lookup[pulled], 14));
-	}
-
+	ml_cb = cb_func(ctor_object, 14);
 	ctx_w = caml_alloc(sizeof(JSContextRef), Abstract_tag);
 	ctor_object_w = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
 	Store_field(ctx_w, 0, (value)ctx);
@@ -368,14 +364,8 @@ extern "C" {
 	//   test
 	  // (const char **)v.data()
 	  // );
-
 	args_w = Atom(0);
 	wrapper_result = caml_callback3(ml_cb, ctx_w, ctor_object_w, args_w);
-
-	// CAMLreturnT(JSObjectRef, JSObject_val(wrapper_result));
-	// caml_callback2(ml_cb, ctx_w, ctor_object_w);
-	// auto r = JSObjectMake(ctx, nullptr, nullptr);
-	// CAMLreturnT(JSObjectRef, r);
 	CAMLreturnT(JSObjectRef, JSObject_val(wrapper_result));
       };
     }

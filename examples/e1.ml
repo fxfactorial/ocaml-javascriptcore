@@ -62,6 +62,16 @@ let () =
   let class_definition = JSC.Object.class_definition_empty () in
   JSC.Object.(
     class_definition.class_name <- "File";
+    class_definition.init <- Some (fun ~context ~init_obj ->
+        print_endline "being init"
+      );
+    class_definition.has_property <- Some (fun ~context ~obj ~prop_name ->
+        let prop =
+          JSC.Value.make_string context prop_name |> JSC.to_string context
+        in
+        Printf.printf "Prop name requested: %s\n" prop;
+        true
+      );
     class_definition.call_as_constructor <- Some (fun ~context ~constructor ~args ->
         let cwd = Sys.getcwd () in
         let filename =
@@ -97,3 +107,13 @@ example_code.cwdName
   in
   JSC.to_string context result
   |> print_endline
+
+let () =
+  let () =
+    let vm = new JSC.virtual_machine in
+    let result =
+      vm#eval_script {|"foo".toUpperCase()|} |> vm#value_to_string
+    in
+    print_endline result
+  in
+  print_endline "finished"

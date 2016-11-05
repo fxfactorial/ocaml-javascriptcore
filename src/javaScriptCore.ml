@@ -64,9 +64,9 @@ end
 module Object = struct
   type property_attribute = None | Read_only | Don't_enum | Don't_delete
   type class_attribute = None | No_automatic_prototype
-  type initializer_cb = js_context -> js_object -> unit
-  type finalizer_cb = js_object -> unit
-  type has_property_cb = js_context -> js_object -> js_string -> bool
+  type initializer_cb = context:js_context -> init_obj:js_object -> unit
+  type finalizer_cb = finalized_obj:js_object -> unit
+  type has_property_cb = context:js_context -> obj:js_object -> prop_name:js_string -> bool
   type get_property_cb_exn = js_context -> js_object -> js_string -> js_value
   type set_property_cb_exn = js_context -> js_object -> js_string -> js_value -> bool
   type delete_property_cb_exn = js_context -> js_object -> js_string -> bool
@@ -115,7 +115,6 @@ module Object = struct
     (* 15 *) mutable has_instance : has_instance_cb_exn option;
     (* 16 *) mutable convert_to_type : convert_to_type_cb_exn option;
     (* 17 *) identifier : string;
-    (* 18 *) test_func : unit -> unit;
   }
   let class_definition_empty () = {
     version = 0; attributes = [||]; class_name = ""; parent_class = None;
@@ -125,9 +124,6 @@ module Object = struct
     call_as_function = None; call_as_constructor = None; has_instance = None;
     convert_to_type = None;
     identifier = Uuidm.(create `V4 |> to_string);
-
-    test_func = fun () -> print_endline "called"
-
   }
   external class_create :
     class_definition -> js_class = "jsc_ml_object_class_create"
@@ -248,3 +244,11 @@ external eval_script_exn :
 external to_string : js_context -> js_value -> string = "jsc_ml_any_to_string"
 
 (* external test_idea : unit -> string array = "jsc_ml_test_idea" *)
+
+class virtual_machine = object
+  val vm = Context.make ()
+  initializer Gc.finalise (fun v -> Context.release vm) vm
+  method eval_script s =
+    eval_script_exn ~context:vm (String.create_with_utf8 s)
+  method value_to_string v = to_string vm v
+end
