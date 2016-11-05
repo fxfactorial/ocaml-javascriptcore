@@ -57,7 +57,7 @@ extern struct custom_operations jsc_context_ops;
 
 extern "C" {
 
-  const char *jsvalue_to_utf8_string(JSGlobalContextRef, JSValueRef);
+  const char *jsvalue_to_utf8_string(JSContextRef, JSValueRef);
   CAMLprim value jsc_string_to_ml(JSStringRef);
   JSStringRef ml_string_to_jsc_string(value);
   CAMLprim value make_ml_jsobject_ref(void);

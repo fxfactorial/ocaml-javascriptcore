@@ -21,7 +21,7 @@ Library javascriptcore
   if system(macosx)
     CCOpt:
       -g -std=c++14 -x c++ -stdlib=libc++
-      -D$(DEBUGGING)
+      -D$(DEBUGGING) -Wextra
       -fno-omit-frame-pointer
       -fsanitize-undefined-trap-on-error
       -fno-optimize-sibling-calls

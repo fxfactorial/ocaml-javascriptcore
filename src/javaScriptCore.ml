@@ -2,14 +2,11 @@
 
 exception JavaScript_exception of string
 
-let () = Callback.register_exception "js-exn" (JavaScript_exception "")
+external set_exn : unit -> unit = "set_js_exn" [@@noalloc]
 
-(* external make_vm : unit -> js_ptr = "jsc_ml_make_vm" *)
-(* external evaluate_script : js_ptr -> string -> string = "jsc_ml_eval_script" *)
-(* external check_script_syntax : js_ptr -> string -> bool = "jsc_ml_check_syntax" *)
-(* external garbage_collect : js_ptr -> unit = "jsc_ml_garbage_collect" *)
-(* external set_vm_context_name : js_ptr -> string -> unit = "jsc_ml_set_context_name" *)
-(* external get_vm_context_name : js_ptr -> string = "jsc_ml_get_context_name" *)
+let () =
+  Callback.register_exception "js-exn" (JavaScript_exception "")
+  |> set_exn
 
 type js_context_group
 type js_context
@@ -20,30 +17,32 @@ type js_property_name_array
 type js_property_name_accumulator
 type js_object = js_value
 
-external print_js : js_context -> js_value -> unit = "jsc_ml_print_js"
-
 module Context = struct
   external create_context_group : unit -> js_context_group = "jsc_ml_context_group_create"
-  external retain : js_context_group -> unit = "jsc_ml_context_group_retain" [@@noalloc]
-  external release : js_context_group -> unit = "jsc_ml_context_group_release" [@@noalloc]
-  external context_create :
-    js_class option -> js_context = "jsc_ml_global_context_create"
-  external context_create_in_group :
+  external group_retain : js_context_group -> unit = "jsc_ml_context_group_retain" [@@noalloc]
+  external group_release : js_context_group -> unit = "jsc_ml_context_group_release" [@@noalloc]
+  external make :
+    ?default_class:js_class option -> unit -> js_context = "jsc_ml_global_context_create"
+  external create_in_group :
     js_context_group option -> js_class option -> js_context
     = "jsc_ml_global_context_create_in_group"
-  external context_retain :
+  external retain :
     js_context -> unit = "jsc_ml_global_context_retain" [@@noalloc]
-  external context_release :
+  external release :
     js_context -> unit = "jsc_ml_global_context_release" [@@noalloc]
-  external context_get_global_object :
+
+  external global_object :
     js_context -> js_object = "jsc_ml_get_global_object"
+
   external get_group : js_context -> js_context_group = "jsc_ml_get_group"
 end
 
-module JSValue = struct
+module Value = struct
   type t = Undefined | Null | Bool | Number | String | Object
   external jsstring_value_of_string :
     js_context -> string -> js_value = "jsc_ml_value_of_ml_string"
+  external make_string :
+    js_context -> js_string -> js_value = "jsc_ml_value_of_js_string"
   (* external get_type : js_context -> js_value -> t = "jsc_ml_value_get_type" *)
   (* external is_undefined : js_context -> js_value -> bool = *)
   (*   "jsc_ml_value_is_undefined" *)
@@ -75,12 +74,17 @@ module Object = struct
     js_context -> js_object -> js_property_name_accumulator -> unit
   type call_as_function_cb_exn =
     js_context -> js_object -> js_object -> int -> js_value array -> js_value
+
   type call_as_constructor_cb_exn =
-      js_context -> js_object -> int -> js_value array -> js_object
+    context:js_context ->
+    constructor:js_object ->
+    args:js_value array ->
+    js_object
+
   type has_instance_cb_exn =
     js_context -> js_object -> js_value -> bool
   type convert_to_type_cb_exn =
-    js_context -> js_object -> JSValue.t -> js_value
+    js_context -> js_object -> Value.t -> js_value
   type static_value = {
     name : string;
     get_prop_cb_exn : get_property_cb_exn;
@@ -111,6 +115,7 @@ module Object = struct
     (* 15 *) mutable has_instance : has_instance_cb_exn option;
     (* 16 *) mutable convert_to_type : convert_to_type_cb_exn option;
     (* 17 *) identifier : string;
+    (* 18 *) test_func : unit -> unit;
   }
   let class_definition_empty () = {
     version = 0; attributes = [||]; class_name = ""; parent_class = None;
@@ -118,13 +123,21 @@ module Object = struct
     finalizer = None; has_property = None; get_property = None;
     set_property = None; delete_property = None; get_property_names = None;
     call_as_function = None; call_as_constructor = None; has_instance = None;
-    convert_to_type = None; identifier = Uuidm.(create `V4 |> to_string)
+    convert_to_type = None;
+    identifier = Uuidm.(create `V4 |> to_string);
+
+    test_func = fun () -> print_endline "called"
+
   }
-  external class_create : class_definition -> js_class = "jsc_ml_object_class_create"
+  external class_create :
+    class_definition -> js_class = "jsc_ml_object_class_create"
   (* external class_retain : js_class -> unit = "jsc_ml_object_class_retain" [@@noalloc] *)
   (* external class_release : js_class -> unit = "jsc_ml_object_class_release" [@@noalloc] *)
-  external object_make : js_context -> js_class option -> 'string option -> js_object =
+
+  external make :
+    ?default_class:js_class -> ?private_data:'a -> js_context -> js_object =
     "jsc_ml_object_object_make"
+
   (* external object_make_with_callback : *)
   (*   js_context -> js_string option -> call_as_function_cb_exn -> js_object = *)
   (*   "jsc_ml_object_make_with_callback" *)
@@ -147,7 +160,7 @@ module Object = struct
     source_url : js_string option;
     starting_line_number : int
   }
-  external object_make_function_exn :
+  external make_function_exn :
     make_function_params -> js_object = "jsc_ml_object_make_function"
 
   (* external object_get_prototype : js_context -> js_object -> js_value = *)
@@ -156,11 +169,22 @@ module Object = struct
   (*   "jsc_ml_object_set_prototype" *)
   (* external object_has_property : js_context -> js_object -> js_string -> bool = *)
   (*   "jsc_ml_object_has_property" *)
-  (* external object_get_property_exn : js_context -> js_object -> js_string -> js_value = *)
-  (*   "jsc_ml_object_get_property" *)
-  (* external object_set_property_exn : *)
-  (*   js_context -> js_object -> js_string -> js_value -> property_attribute array -> unit = *)
-  (*   "jsc_ml_object_set_property" *)
+  external get_property_exn :
+    context:js_context ->
+    target:js_object ->
+    property_name:js_string ->
+    js_value =
+    "jsc_ml_object_get_property"
+
+  external set_property_exn :
+    ?property_attributes:property_attribute array ->
+    context:js_context ->
+    target:js_object ->
+    property_name:js_string ->
+    js_value ->
+    unit =
+    "jsc_ml_object_set_property"
+
   (* external object_delete_property_exn : *)
   (*   js_context -> js_object -> js_string -> bool = "jsc_ml_object_delete_property" *)
   (* external object_get_property_at_index_exn : *)
@@ -202,36 +226,25 @@ module Object = struct
   (*   "jsc_ml_name_accumulator_add_name" *)
 end
 
-
 module String = struct
-  (* external create_with_chars : string -> int -> js_string = *)
-  (*   "jsc_ml_string_create_with_chars" *)
-
   external create_with_utf8 :
     string -> js_string = "jsc_ml_string_create_with_utf8"
-
   external retain : js_string -> unit = "jsc_ml_string_retain" [@@noalloc]
   external release : js_string -> unit = "jsc_ml_string_release" [@@noalloc]
   external length : js_string -> int = "jsc_ml_string_length" [@@noalloc]
-  external maximum_utf8_string_length : js_string -> int = "jsc_ml_string_max_size" [@@noalloc]
-  (* external get_utf8_string : js_string -> string -> int -> int = *)
-  (*   "jsc_ml_string_get_utf8_string" *)
   external is_equal : js_string -> js_string -> bool = "jsc_ml_string_is_equal"
   external is_equal_to_utf8_string : js_string -> string -> bool =
     "jsc_ml_string_is_equal_utf8"
 end
 
+external eval_script_exn :
+  ?this:js_object ->
+  ?source_url:js_string ->
+  ?starting_line:int ->
+  context:js_context ->
+  js_string ->
+  js_value = "jsc_ml_eval_script"
 
+external to_string : js_context -> js_value -> string = "jsc_ml_any_to_string"
 
-
-(* class virtual_machine ?named () = object(self) *)
-(*   val raw_ptr = make_vm () *)
-(*   initializer *)
-(*     match named with None -> self#set_name "" | Some s -> self#set_name s *)
-
-(*   method evaluate_script src = evaluate_script raw_ptr src *)
-(*   method garbage_collect = garbage_collect raw_ptr *)
-(*   method check_syntax src = check_script_syntax raw_ptr src *)
-(*   method set_name name = set_vm_context_name raw_ptr name *)
-(*   method name = get_vm_context_name raw_ptr *)
-(* end *)
+(* external test_idea : unit -> string array = "jsc_ml_test_idea" *)

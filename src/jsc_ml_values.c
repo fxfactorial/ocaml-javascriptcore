@@ -8,8 +8,6 @@
  * This file is a part of ocaml-javascriptcore.
  */
 
-#include <iostream>
-
 #include <JavaScriptCore/JavaScript.h>
 
 #include "jsc_ml_values.h"
@@ -34,7 +32,7 @@ extern "C" {
 
   /* caller must free the string */
   const char*
-  jsvalue_to_utf8_string(JSGlobalContextRef ctx, JSValueRef v)
+  jsvalue_to_utf8_string(JSContextRef ctx, JSValueRef v)
   {
     JSStringRef valueAsString = JSValueToStringCopy(ctx, v, NULL);
     size_t jsSize = JSStringGetMaximumUTF8CStringSize(valueAsString);
@@ -45,14 +43,16 @@ extern "C" {
   }
 
   CAMLprim value
-  jsc_string_to_ml(JSStringRef str)
+  jsc_ml_any_to_string(value ctx, value any)
   {
-    CAMLparam0();
-    //DEBUG("Converting JSC string into OCaml string");
-    size_t string_len = JSStringGetMaximumUTF8CStringSize(str);
-    char string_buffer[string_len];
-    JSStringGetUTF8CString(str, string_buffer, string_len);
-    CAMLreturn(caml_copy_string(string_buffer));
+    CAMLparam2(ctx, any);
+    // DEBUG("Converting some JSValueRef into an OCaml string");
+    CAMLlocal1(as_string);
+    const char *string_utf8 =
+      jsvalue_to_utf8_string(JSContext_val(ctx), JSValue_val(any));
+    as_string = caml_copy_string(string_utf8);
+    free((void*)string_utf8);
+    CAMLreturn(as_string);
   }
 
   // JSStringRef
@@ -62,14 +62,4 @@ extern "C" {
   //   return JSStringCreateWithUTF8CString(caml_strdup(String_val(ml_string)));
   // }
 
-  CAMLprim value
-  jsc_ml_print_js(value ctx, value jsvalue)
-  {
-    CAMLparam2(ctx, jsvalue);
-    auto as_string =
-      jsvalue_to_utf8_string(JSContext_val(ctx), JSValue_val(jsvalue));
-    std::cout << as_string << std::endl;
-    free((void*)as_string);
-    CAMLreturn(Val_unit);
-  }
 }
