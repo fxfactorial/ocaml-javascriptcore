@@ -233,7 +233,6 @@ extern "C" {
       std::lock_guard<std::mutex> guard(class_definition_lock);
       caml_register_global_root(&class_def);
       const char *key_lookup = String_val(Field(class_def, 17));
-      std::cout << "Global key" << key_lookup << std::endl;
       class_definition_lookup[key_lookup] = class_def;
     }
 
@@ -350,7 +349,6 @@ extern "C" {
 	{
 	  std::lock_guard<std::mutex> guard(class_definition_lock);
 	  const char *pulled = String_val((*g)["class_lookup_key"]);
-	  std::cout << "Inner key" << pulled << std::endl;
 	  ml_cb = Some_val(Field(class_definition_lookup[pulled], 14));
 	}
 
