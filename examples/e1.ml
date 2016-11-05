@@ -65,6 +65,9 @@ let () =
     class_definition.init <- Some (fun ~context ~init_obj ->
         print_endline "being init"
       );
+    class_definition.finalizer <- Some (fun ~finalized_obj ->
+        print_endline "Object being garbaged collected"
+      );
     class_definition.has_property <- Some (fun ~context ~obj ~prop_name ->
         let prop =
           JSC.Value.make_string context prop_name |> JSC.to_string context
@@ -116,4 +119,10 @@ let () =
     in
     print_endline result
   in
-  print_endline "finished"
+  print_endline "finished";
+  let vm = new JSC.virtual_machine in
+  match vm#eval_script {|10|} |> vm#get_type with
+  | JSC.Value.Undefined -> print_endline "Was undefined"
+  | JSC.Value.Number -> print_endline "Value was a number"
+  | JSC.Value.String -> print_endline "A string"
+  | _ -> print_endline "Else"

@@ -39,12 +39,18 @@ const std::string current_date_time(void);
 #include <JavaScriptCore/JavaScript.h>
 
 #define Val_none Val_int(0)
+
+//type t = Undefined | Null | Bool | Number | String | Object
+#define Val_js_undefined Val_int(0)
+#define Val_js_null Val_int(1)
+#define Val_js_bool Val_int(2)
+#define Val_js_number Val_int(3)
+#define Val_js_string Val_int(4)
+#define Val_js_object Val_int(5)
+
 #define Some_val(v) Field(v, 0)
 
 CAMLprim value Val_some(value);
-
-// #define JSVirtual_machine_val(v)		\
-//   (*((JSGlobalContextRef*)Data_custom_val(v)))
 
 #define JSContext_group_val(v) ((JSContextGroupRef)Field(v, 0))
 #define JSClass_val(v) ((JSClassRef)Field(v, 0))
@@ -52,8 +58,6 @@ CAMLprim value Val_some(value);
 #define JSString_val(v) ((JSStringRef)Field(v, 0))
 #define JSValue_val(v) ((JSValueRef)Field(v, 0))
 #define JSObject_val(v) ((JSObjectRef)Field(v, 0))
-
-extern struct custom_operations jsc_context_ops;
 
 extern "C" {
 

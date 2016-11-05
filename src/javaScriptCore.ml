@@ -43,7 +43,7 @@ module Value = struct
     js_context -> string -> js_value = "jsc_ml_value_of_ml_string"
   external make_string :
     js_context -> js_string -> js_value = "jsc_ml_value_of_js_string"
-  (* external get_type : js_context -> js_value -> t = "jsc_ml_value_get_type" *)
+  external get_type : js_context -> js_value -> t = "jsc_ml_value_get_type"
   (* external is_undefined : js_context -> js_value -> bool = *)
   (*   "jsc_ml_value_is_undefined" *)
   (* external is_null : js_context -> js_value -> bool = "jsc_ml_value_is_null" *)
@@ -251,4 +251,5 @@ class virtual_machine = object
   method eval_script s =
     eval_script_exn ~context:vm (String.create_with_utf8 s)
   method value_to_string v = to_string vm v
+  method get_type v = Value.get_type vm v
 end

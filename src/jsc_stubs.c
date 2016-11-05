@@ -215,9 +215,22 @@ extern "C" {
     CAMLreturn(wrapper);
   }
 
+  CAMLprim value
+  jsc_ml_value_get_type(value context, value js_value)
+  {
+    CAMLparam2(context, js_value);
+    switch (JSValueGetType(JSContext_val(context), JSValue_val(js_value))) {
+    case kJSTypeUndefined: CAMLreturn(Val_js_undefined);
+    case kJSTypeNull:      CAMLreturn(Val_js_null);
+    case kJSTypeBoolean:   CAMLreturn(Val_js_bool);
+    case kJSTypeNumber:    CAMLreturn(Val_js_number);
+    case kJSTypeString:    CAMLreturn(Val_js_string);
+    case kJSTypeObject:    CAMLreturn(Val_js_object);
+    }
+  }
+
   static std::mutex class_definition_lock;
   static std::unordered_map<std::string, value> class_definition_lookup;
-
   // will I ever remove it? caml_remove_global_root(value *)
 
   auto cb_func = [](auto obj, auto spot){
@@ -279,16 +292,16 @@ extern "C" {
     	CAMLreturn0;
       };
     }
-    // if (Field(class_def, 7) != Val_none) {
-    //   starter.finalize = [](auto obj) {
-    // 	CAMLparam0();
-    // 	CAMLlocal2(t, obj_w);
-    // 	obj_w = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
-    // 	Store_field(obj_w, 0, (value)obj_w);
-    // 	caml_callback(Some_val(Field(t, 7)), obj_w);
-    // 	CAMLreturn0;
-    //   };
-    // }
+    if (Field(class_def, 7) != Val_none) {
+      starter.finalize = [](auto obj) {
+    	CAMLparam0();
+    	CAMLlocal2(ml_cb, obj_w);
+    	obj_w = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
+    	Store_field(obj_w, 0, (value)obj_w);
+    	caml_callback(cb_func(obj, 7), obj_w);
+    	CAMLreturn0;
+      };
+    }
     if (Field(class_def, 8) != Val_none) {
       starter.hasProperty = [](auto ctx, auto obj, auto prop_name) {
     	CAMLparam0();
