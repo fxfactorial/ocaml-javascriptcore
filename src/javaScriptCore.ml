@@ -44,13 +44,16 @@ module Value = struct
   external make_string :
     js_context -> js_string -> js_value = "jsc_ml_value_of_js_string"
   external get_type : js_context -> js_value -> t = "jsc_ml_value_get_type"
-  (* external is_undefined : js_context -> js_value -> bool = *)
-  (*   "jsc_ml_value_is_undefined" *)
-  (* external is_null : js_context -> js_value -> bool = "jsc_ml_value_is_null" *)
-  (* external is_bool : js_context -> js_value -> bool = "jsc_ml_value_is_bool" *)
-  (* external is_number : js_context -> js_value -> bool = "jsc_ml_value_is_number" *)
-  (* external is_string : js_context -> js_value -> bool = "jsc_ml_value_is_string" *)
-  (* external is_object : js_context -> js_value -> bool = "jsc_ml_value_is_object" *)
+  external is_undefined : context:js_context -> js_value -> bool =
+    "jsc_ml_value_is_undefined"
+  external is_null : context:js_context -> js_value -> bool = "jsc_ml_value_is_null"
+  external is_bool : context:js_context -> js_value -> bool = "jsc_ml_value_is_bool"
+  external is_number : context:js_context -> js_value -> bool = "jsc_ml_value_is_number"
+  external is_string : context:js_context -> js_value -> bool = "jsc_ml_value_is_string"
+  external is_object : context:js_context -> js_value -> bool = "jsc_ml_value_is_object"
+  external is_array : context:js_context -> js_value -> bool = "jsc_ml_value_is_array"
+  external is_date : context:js_context -> js_value -> bool = "jsc_ml_value_is_date"
+
   (* external is_object_of_class : js_context -> js_value -> js_class -> bool = *)
   (*   "jsc_ml_value_is_object_of_class" *)
   (* external is_equal : js_context -> js_value -> js_value -> bool = *)

@@ -229,6 +229,70 @@ extern "C" {
     }
   }
 
+  CAMLprim value
+  jsc_ml_value_is_undefined(value context, value js_value)
+  {
+    CAMLparam2(context, js_value);
+    CAMLreturn(Val_bool(JSValueIsUndefined(JSContext_val(context),
+					   JSValue_val(js_value))));
+  }
+
+  CAMLprim value
+  jsc_ml_value_is_null(value context, value js_value)
+  {
+    CAMLparam2(context, js_value);
+    CAMLreturn(Val_bool(JSValueIsNull(JSContext_val(context),
+				      JSValue_val(js_value))));
+  }
+
+  CAMLprim value
+  jsc_ml_value_is_bool(value context, value js_value)
+  {
+    CAMLparam2(context, js_value);
+    CAMLreturn(Val_bool(JSValueIsBoolean(JSContext_val(context),
+					 JSValue_val(js_value))));
+  }
+
+  CAMLprim value
+  jsc_ml_value_is_number(value context, value js_value)
+  {
+    CAMLparam2(context, js_value);
+    CAMLreturn(Val_bool(JSValueIsNumber(JSContext_val(context),
+					JSValue_val(js_value))));
+  }
+
+  CAMLprim value
+  jsc_ml_value_is_string(value context, value js_value)
+  {
+    CAMLparam2(context, js_value);
+    CAMLreturn(Val_bool(JSValueIsString(JSContext_val(context),
+					JSValue_val(js_value))));
+  }
+
+  CAMLprim value
+  jsc_ml_value_is_object(value context, value js_value)
+  {
+    CAMLparam2(context, js_value);
+    CAMLreturn(Val_bool(JSValueIsObject(JSContext_val(context),
+					JSValue_val(js_value))));
+  }
+
+  CAMLprim value
+  jsc_ml_value_is_array(value context, value js_value)
+  {
+    CAMLparam2(context, js_value);
+    CAMLreturn(Val_bool(JSValueIsArray(JSContext_val(context),
+				       JSValue_val(js_value))));
+  }
+
+  CAMLprim value
+  jsc_ml_value_is_date(value context, value js_value)
+  {
+    CAMLparam2(context, js_value);
+    CAMLreturn(Val_bool(JSValueIsDate(JSContext_val(context),
+				      JSValue_val(js_value))));
+  }
+
   static std::mutex class_definition_lock;
   static std::unordered_map<std::string, value> class_definition_lookup;
   // will I ever remove it? caml_remove_global_root(value *)
