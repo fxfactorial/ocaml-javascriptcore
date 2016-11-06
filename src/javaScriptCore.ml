@@ -66,7 +66,6 @@ module Value = struct
       | Float32Array
       | Float64Array
       | ArrayBuffer
-      | None
 
     external get_type_exn : context:js_context -> typed_array:js_value -> t
       = "jsc_ml_get_typed_array_type"
@@ -80,6 +79,18 @@ module Value = struct
   (*   "jsc_ml_value_is_strict_equal" *)
 
   (* Stopped at Is Instance of Constructor *)
+  external make_undefined :
+    context:js_context -> js_value = "jsc_ml_make_undefined"
+  external make_null :
+    context:js_context -> js_value = "jsc_ml_make_null"
+  external make_bool :
+    context:js_context -> bool -> js_value = "jsc_ml_make_bool"
+  external make_number :
+    context:js_context -> float -> js_value = "jsc_ml_make_number"
+  external make_from_json_string :
+    context:js_context -> js_string -> js_value option =
+    "jsc_ml_make_from_json_string"
+
 end
 
 module Object = struct
