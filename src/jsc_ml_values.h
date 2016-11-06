@@ -42,11 +42,22 @@ const std::string current_date_time(void);
 
 //type t = Undefined | Null | Bool | Number | String | Object
 #define Val_js_undefined Val_int(0)
-#define Val_js_null Val_int(1)
-#define Val_js_bool Val_int(2)
-#define Val_js_number Val_int(3)
-#define Val_js_string Val_int(4)
-#define Val_js_object Val_int(5)
+#define Val_js_null      Val_int(1)
+#define Val_js_bool      Val_int(2)
+#define Val_js_number    Val_int(3)
+#define Val_js_string    Val_int(4)
+#define Val_js_object    Val_int(5)
+
+#define Val_js_typed_array_Int8Array         Val_int(0)
+#define Val_js_typed_array_Int16Array        Val_int(1)
+#define Val_js_typed_array_Int32Array        Val_int(2)
+#define Val_js_typed_array_Uint8Array        Val_int(3)
+#define Val_js_typed_array_Uint8ClampedArray Val_int(4)
+#define Val_js_typed_array_Uint16Array       Val_int(5)
+#define Val_js_typed_array_Uint32Array       Val_int(6)
+#define Val_js_typed_array_Float32Array      Val_int(7)
+#define Val_js_typed_array_Float64Array      Val_int(8)
+#define Val_js_typed_array_ArrayBuffer       Val_int(9)
 
 #define Some_val(v) Field(v, 0)
 

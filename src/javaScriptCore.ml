@@ -54,6 +54,24 @@ module Value = struct
   external is_array : context:js_context -> js_value -> bool = "jsc_ml_value_is_array"
   external is_date : context:js_context -> js_value -> bool = "jsc_ml_value_is_date"
 
+  module TypedArray = struct
+    type t =
+        Int8Array
+      | Int16Array
+      | Int32Array
+      | Uint8Array
+      | Uint8ClampedArray
+      | Uint16Array
+      | Uint32Array
+      | Float32Array
+      | Float64Array
+      | ArrayBuffer
+      | None
+
+    external get_type_exn : context:js_context -> typed_array:js_value -> t
+      = "jsc_ml_get_typed_array_type"
+
+  end
   (* external is_object_of_class : js_context -> js_value -> js_class -> bool = *)
   (*   "jsc_ml_value_is_object_of_class" *)
   (* external is_equal : js_context -> js_value -> js_value -> bool = *)

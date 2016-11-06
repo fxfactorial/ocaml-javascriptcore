@@ -293,6 +293,41 @@ extern "C" {
 				      JSValue_val(js_value))));
   }
 
+  CAMLprim value
+  jsc_ml_get_typed_array_type(value context, value js_typed_array)
+  {
+    CAMLparam2(context, js_typed_array);
+    JSValueRef exn;
+    switch (JSValueGetTypedArrayType(JSContext_val(context),
+				     JSValue_val(js_typed_array),
+				     &exn)) {
+    case kJSTypedArrayTypeInt8Array:
+      CAMLreturn(Val_js_typed_array_Int8Array);
+    case kJSTypedArrayTypeInt16Array:
+      CAMLreturn(Val_js_typed_array_Int16Array);
+    case kJSTypedArrayTypeInt32Array:
+      CAMLreturn(Val_js_typed_array_Int32Array);
+    case kJSTypedArrayTypeUint8Array:
+      CAMLreturn(Val_js_typed_array_Uint8Array);
+    case kJSTypedArrayTypeUint8ClampedArray:
+      CAMLreturn(Val_js_typed_array_Uint8ClampedArray);
+    case kJSTypedArrayTypeUint16Array:
+      CAMLreturn(Val_js_typed_array_Uint16Array);
+    case kJSTypedArrayTypeUint32Array:
+      CAMLreturn(Val_js_typed_array_Uint32Array);
+    case kJSTypedArrayTypeFloat32Array:
+      CAMLreturn(Val_js_typed_array_Float32Array);
+    case kJSTypedArrayTypeFloat64Array:
+      CAMLreturn(Val_js_typed_array_Float64Array);
+    case kJSTypedArrayTypeArrayBuffer:
+      CAMLreturn(Val_js_typed_array_ArrayBuffer);
+    case kJSTypedArrayTypeNone:
+      caml_raise_with_string(js_exn,
+			     jsvalue_to_utf8_string(JSContext_val(context),
+						    exn));
+    }
+  }
+
   static std::mutex class_definition_lock;
   static std::unordered_map<std::string, value> class_definition_lookup;
   // will I ever remove it? caml_remove_global_root(value *)
