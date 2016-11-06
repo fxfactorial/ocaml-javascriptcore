@@ -62,8 +62,6 @@ let () =
     print_endline result
   in
   f ();
-  Gc.major ();
-  print_endline "finished and GCed";
   let vm = new JSC.virtual_machine in
   match vm#eval_script {|10|} |> vm#get_type with
   | JSC.Value.Undefined -> print_endline "Was undefined"

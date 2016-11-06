@@ -18,11 +18,15 @@ type js_property_name_accumulator
 type js_object = js_value
 
 module Context = struct
-  external create_context_group : unit -> js_context_group = "jsc_ml_context_group_create"
-  external group_retain : js_context_group -> unit = "jsc_ml_context_group_retain" [@@noalloc]
-  external group_release : js_context_group -> unit = "jsc_ml_context_group_release" [@@noalloc]
+  external create_context_group :
+    unit -> js_context_group = "jsc_ml_context_group_create"
+  external group_retain :
+    js_context_group -> unit = "jsc_ml_context_group_retain" [@@noalloc]
+    external group_release :
+      js_context_group -> unit = "jsc_ml_context_group_release" [@@noalloc]
   external make :
-    ?default_class:js_class option -> unit -> js_context = "jsc_ml_global_context_create"
+    ?default_class:js_class option -> unit -> js_context =
+    "jsc_ml_global_context_create"
   external create_in_group :
     js_context_group option -> js_class option -> js_context
     = "jsc_ml_global_context_create_in_group"
@@ -30,10 +34,8 @@ module Context = struct
     js_context -> unit = "jsc_ml_global_context_retain" [@@noalloc]
   external release :
     js_context -> unit = "jsc_ml_global_context_release" [@@noalloc]
-
   external global_object :
     js_context -> js_object = "jsc_ml_get_global_object"
-
   external get_group : js_context -> js_context_group = "jsc_ml_get_group"
 end
 
@@ -43,7 +45,8 @@ module Value = struct
     js_context -> string -> js_value = "jsc_ml_value_of_ml_string"
   external make_string :
     js_context -> js_string -> js_value = "jsc_ml_value_of_js_string"
-  external get_type : js_context -> js_value -> t = "jsc_ml_value_get_type"
+  external get_type : context:js_context -> js_value -> t =
+    "jsc_ml_value_get_type"
   external is_undefined : context:js_context -> js_value -> bool =
     "jsc_ml_value_is_undefined"
   external is_null :
@@ -296,11 +299,23 @@ external property_names_of_object :
   context:js_context -> js_object -> string array =
   "jsc_ml_js_prop_names_of_object"
 
-class virtual_machine = object
-  val vm = Context.make ()
-  initializer Gc.finalise (fun v -> Context.release vm) vm
+class virtual_machine = object(self)
+  val context = Context.make ()
+  initializer Gc.finalise Context.release context
   method eval_script s =
-    eval_script_exn ~context:vm (String.create_with_utf8 s)
-  method value_to_string v = to_string_of_jsvalue vm v
-  method get_type v = Value.get_type vm v
+    eval_script_exn ~context (String.create_with_utf8 s)
+  method value_to_string = to_string_of_jsvalue ~context
+  method get_type = Value.get_type ~context
+  method make_number = Value.make_number ~context
+  method is_null = Value.is_null ~context
+  method is_bool = Value.is_bool ~context
+  method to_string_of_jsvalue = to_string_of_jsvalue ~context
+  method json_of_value ?(indent=Value.Zero) source =
+    Value.make_json_string_from_value_exn ~context ~source indent
+  method json_from_string s =
+    let s = String.create_with_utf8 s in
+    let result = Value.make_from_json_string_exn ~context s in
+    String.release s;
+    result
+  method to_string_of_jsstring = to_string_of_jsstring ~context
 end
