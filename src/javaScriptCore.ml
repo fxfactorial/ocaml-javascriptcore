@@ -278,8 +278,10 @@ external eval_script_exn :
   js_string ->
   js_value = "jsc_ml_eval_script"
 
-external to_string : js_context -> js_value -> string = "jsc_ml_any_to_string"
-
+external to_string_of_jsvalue :
+  context:js_context -> js_value -> string = "jsc_ml_any_to_string"
+external to_string_of_jsstring :
+  context:js_context -> js_string -> string = "jsc_ml_js_string_to_string"
 (* external test_idea : unit -> string array = "jsc_ml_test_idea" *)
 
 class virtual_machine = object
@@ -287,6 +289,6 @@ class virtual_machine = object
   initializer Gc.finalise (fun v -> Context.release vm) vm
   method eval_script s =
     eval_script_exn ~context:vm (String.create_with_utf8 s)
-  method value_to_string v = to_string vm v
+  method value_to_string v = to_string_of_jsvalue vm v
   method get_type v = Value.get_type vm v
 end

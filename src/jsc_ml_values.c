@@ -55,6 +55,17 @@ extern "C" {
     CAMLreturn(as_string);
   }
 
+  CAMLprim value
+  jsc_ml_js_string_to_string(value context, value js_string)
+  {
+    CAMLparam2(context, js_string);
+    CAMLlocal1(result);
+    size_t js_size = JSStringGetMaximumUTF8CStringSize(JSString_val(js_string));
+    char *js_buffer = (char*)malloc(js_size);
+    JSStringGetUTF8CString(JSString_val(js_string), js_buffer, js_size);
+    free((void*)js_buffer);
+    CAMLreturn(caml_copy_string(js_buffer));
+  }
   // JSStringRef
   // ml_string_to_jsc_string(value ml_string)
   // {

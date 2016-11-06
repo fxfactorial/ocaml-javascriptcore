@@ -70,7 +70,7 @@ let () =
       );
     class_definition.has_property <- Some (fun ~context ~obj ~prop_name ->
         let prop =
-          JSC.Value.make_string context prop_name |> JSC.to_string context
+          JSC.Value.make_string context prop_name |> JSC.to_string_of_jsvalue ~context
         in
         Printf.printf "Prop name requested: %s\n" prop;
         true
@@ -108,21 +108,32 @@ example_code.cwdName
       context
       (JSC.String.create_with_utf8 code_to_eval)
   in
-  JSC.to_string context result
+  JSC.to_string_of_jsvalue context result
   |> print_endline
 
 let () =
-  let () =
+  let f () =
     let vm = new JSC.virtual_machine in
     let result =
       vm#eval_script {|"foo".toUpperCase()|} |> vm#value_to_string
     in
     print_endline result
   in
-  print_endline "finished";
+  f ();
+  Gc.major ();
+  print_endline "finished and GCed";
   let vm = new JSC.virtual_machine in
   match vm#eval_script {|10|} |> vm#get_type with
   | JSC.Value.Undefined -> print_endline "Was undefined"
   | JSC.Value.Number -> print_endline "Value was a number"
   | JSC.Value.String -> print_endline "A string"
   | _ -> print_endline "Else"
+
+let () =
+  let ctx = JSC.Context.make () in
+  let str = JSC.String.create_with_utf8 "{\"foo\":123}" in
+  let as_json = JSC.Value.make_from_json_string_exn ctx str in
+  let pretty_string =
+    JSC.Value.make_json_string_from_value_exn ctx as_json JSC.Value.Three
+  in
+  print_endline (JSC.to_string_of_jsstring ctx pretty_string)
