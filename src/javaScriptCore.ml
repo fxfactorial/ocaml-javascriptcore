@@ -87,9 +87,14 @@ module Value = struct
     context:js_context -> bool -> js_value = "jsc_ml_make_bool"
   external make_number :
     context:js_context -> float -> js_value = "jsc_ml_make_number"
-  external make_from_json_string :
-    context:js_context -> js_string -> js_value option =
+  external make_from_json_string_exn :
+    context:js_context -> js_string -> js_value =
     "jsc_ml_make_from_json_string"
+  type json_indent_spaces =
+      Zero | One | Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten
+  external make_json_string_from_value_exn :
+    context:js_context -> source:js_value -> json_indent_spaces -> js_string =
+    "jsc_ml_make_json_string_from_value"
 
 end
 

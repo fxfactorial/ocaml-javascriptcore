@@ -378,7 +378,37 @@ extern "C" {
   jsc_ml_make_from_json_string(value context, value js_string)
   {
     CAMLparam2(context, js_string);
+    CAMLlocal1(wrapper);
+    auto result = JSValueMakeFromJSONString(JSContext_val(context),
+					    JSString_val(js_string));
+    if (JSValueIsNull(JSContext_val(context), result))
+      caml_raise_with_string(js_exn, "Input string wasn't JSON encoded");
+    else {
+      wrapper = caml_alloc(sizeof(JSValueRef), Abstract_tag);
+      Store_field(wrapper, 0, (value)result);
+      CAMLreturn(wrapper);
+    }
+  }
 
+  CAMLprim value
+  jsc_ml_make_json_string_from_value(value context, value js_value, value indent_count)
+  {
+    CAMLparam3(context, js_value, indent_count);
+    CAMLlocal1(wrapper);
+    unsigned indent = Int_val(indent_count);
+    JSValueRef exn;
+    auto result = JSValueCreateJSONString(JSContext_val(context),
+					  JSValue_val(js_value),
+					  indent,
+					  &exn);
+    if (exn)
+      caml_raise_with_string(js_exn,
+			     jsvalue_to_utf8_string(JSContext_val(context), exn));
+    else {
+      wrapper = caml_alloc(sizeof(JSStringRef), Abstract_tag);
+      Store_field(wrapper, 0, (value)result);
+      CAMLreturn(wrapper);
+    }
   }
 
   static std::mutex class_definition_lock;
