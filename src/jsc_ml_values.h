@@ -61,17 +61,18 @@ const std::string current_date_time(void);
 
 #define Some_val(v) Field(v, 0)
 
-CAMLprim value Val_some(value);
-
+// int caml_page_table_lookup(void *);
 #define JSContext_group_val(v) ((JSContextGroupRef)Field(v, 0))
 #define JSClass_val(v) ((JSClassRef)Field(v, 0))
 #define JSContext_val(v) ((JSGlobalContextRef)Field(v, 0))
 #define JSString_val(v) ((JSStringRef)Field(v, 0))
 #define JSValue_val(v) ((JSValueRef)Field(v, 0))
 #define JSObject_val(v) ((JSObjectRef)Field(v, 0))
+#define JSProperty_name_array_val(v) ((JSPropertyNameArrayRef)Field(v, 0))
 
 extern "C" {
 
+  CAMLprim value Val_some(value);
   const char *jsvalue_to_utf8_string(JSContextRef, JSValueRef);
   CAMLprim value jsc_string_to_ml(JSStringRef);
   JSStringRef ml_string_to_jsc_string(value);

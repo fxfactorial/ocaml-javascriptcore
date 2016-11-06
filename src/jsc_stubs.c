@@ -619,9 +619,9 @@ extern "C" {
     auto name =
       Field(create_function_record, 1) != Val_none ?
       JSString_val(Some_val(Field(create_function_record, 1))) : nullptr;
-    auto parameter_count = Wosize_val(Field(create_function_record, 2));
+    size_t parameter_count = Wosize_val(Field(create_function_record, 2));
     std::vector<JSStringRef> parameter_names;
-    for (auto i = 0; i < parameter_count; i++)
+    for (size_t i = 0; i < parameter_count; i++)
       parameter_names.push_back(JSString_val(Field(Field(create_function_record, 2), i)));
     auto body = JSString_val(Field(create_function_record, 3));
     auto source_url =
@@ -660,12 +660,12 @@ extern "C" {
     wrapper = caml_alloc(sizeof(JSValueRef), Abstract_tag);
     DEBUG("Calling JS Function");
     JSValueRef exn;
-    auto argc = Wosize_val(args);
+    size_t argc = Wosize_val(args);
     auto this_obj =
       maybe_this != Val_none ? JSObject_val(Some_val(maybe_this)) : nullptr;
     std::vector<JSValueRef> _args_;
     _args_.reserve(argc);
-    for (auto i = 0; i < argc; i++) _args_.push_back(JSValue_val(Field(args, i)));
+    for (size_t i = 0; i < argc; i++) _args_.push_back(JSValue_val(Field(args, i)));
     auto call_result = JSObjectCallAsFunction(JSContext_val(ctx),
 					      JSObject_val(fn),
     					      this_obj,
@@ -703,17 +703,6 @@ extern "C" {
 				   _src_url_,
 				   _starting_line_,
 				   &exn);
-    // if (exn) {
-    //   auto g = JSContext_val(context);
-      // int caml_page_table_lookup(void *);
-      // std::cout << caml_page_table_lookup(context) << std::endl;
-      // std::cout << g << std::endl;
-      // std::cout << exn << std::endl;
-      // auto t = JSValueGetType(JSContext_val(context), exn);
-      // auto as_s = JSValueToStringCopy(JSContext_val(context), exn, nullptr);
-      // caml_raise_with_string(js_exn,
-      // 			     jsvalue_to_utf8_string(JSContext_val(context), exn));
-    // }
 
     Store_field(wrapper, 0, (value)result);
     CAMLreturn(wrapper);
@@ -761,7 +750,142 @@ extern "C" {
     CAMLreturn(Val_unit);
   }
 
+  CAMLprim value
+  jsc_ml_object_delete_property(value context, value js_object, value prop_name)
+  {
+    CAMLparam3(context, js_object, prop_name);
+    JSValueRef exn;
+    bool result = JSObjectDeleteProperty(JSContext_val(context),
+					 JSObject_val(js_object),
+					 JSString_val(prop_name),
+					 &exn);
+    if (exn)
+      caml_raise_with_string(js_exn,
+			     jsvalue_to_utf8_string(JSContext_val(context), exn));
+    CAMLreturn(Bool_val(result));
+  }
 
+  CAMLprim value
+  jsc_ml_object_get_property_at_index(value context, value js_object, value index)
+  {
+    CAMLparam3(context, js_object, index);
+    JSValueRef exn;
+    CAMLlocal1(wrapper);
+    auto result = JSObjectGetPropertyAtIndex(JSContext_val(context),
+					     JSObject_val(js_object),
+					     Int_val(index),
+					     &exn);
+    if (exn)
+      caml_raise_with_string(js_exn,
+			     jsvalue_to_utf8_string(JSContext_val(context), exn));
+    else {
+      wrapper = caml_alloc(sizeof(JSValueRef), Abstract_tag);
+      Store_field(wrapper, 0, (value)result);
+      CAMLreturn(wrapper);
+    }
+  }
+
+  CAMLprim value
+  jsc_ml_object_set_property_at_index(value context,
+				      value js_object,
+				      value spot,
+				      value spot_value)
+  {
+    CAMLparam4(context, js_object, spot, spot_value);
+    CAMLlocal1(wrapper);
+    JSValueRef exn;
+    JSObjectSetPropertyAtIndex(JSContext_val(context),
+			       JSObject_val(js_object),
+			       Int_val(spot),
+			       JSValue_val(spot_value),
+			       &exn);
+    if (exn)
+      caml_raise_with_string(js_exn,
+			     jsvalue_to_utf8_string(JSContext_val(context), exn));
+    else
+      CAMLreturn(Val_unit);
+  }
+
+  CAMLprim value
+  jsc_ml_object_get_private(value obj)
+  {
+    CAMLparam1(obj);
+    auto datum = JSObjectGetPrivate(JSObject_val(obj));
+    if (datum == nullptr) CAMLreturn(Val_none);
+    else CAMLreturn(Val_some((value)datum));
+  }
+
+  CAMLprim value
+  jsc_ml_object_set_private(value target, value datum)
+  {
+    CAMLparam2(target, datum);
+    // Need to remember to unregister
+    caml_register_global_root(&datum);
+    CAMLreturn(Bool_val(JSObjectSetPrivate(JSObject_val(target), (void*)datum)));
+  }
+
+  CAMLprim value
+  jsc_ml_object_is_function(value context, value obj)
+  {
+    CAMLparam2(context, obj);
+    CAMLreturn(Bool_val(JSObjectIsFunction(JSContext_val(context),
+					   JSObject_val(obj))));
+  }
+
+  CAMLprim value
+  jsc_ml_object_is_constructor(value context, value obj)
+  {
+    CAMLparam2(context, obj);
+    CAMLreturn(Bool_val(JSObjectIsConstructor(JSContext_val(context),
+					      JSObject_val(obj))));
+  }
+
+  CAMLprim value
+  jsc_ml_object_copy_property_names(value context, value obj)
+  {
+    CAMLparam2(context, obj);
+    CAMLlocal1(wrapper);
+    wrapper = caml_alloc(sizeof(JSPropertyNameArrayRef), Abstract_tag);
+    auto result = JSObjectCopyPropertyNames(JSContext_val(context),
+					    JSObject_val(obj));
+    Store_field(wrapper, 0, (value)result);
+    CAMLreturn(wrapper);
+  }
+
+  CAMLprim value
+  jsc_ml_property_name_array_retain(value prop_array)
+  {
+    CAMLparam1(prop_array);
+    JSPropertyNameArrayRetain(JSProperty_name_array_val(prop_array));
+    CAMLreturn(Val_unit);
+  }
+
+  CAMLprim value
+  jsc_ml_property_name_array_release(value prop_array)
+  {
+    CAMLparam1(prop_array);
+    JSPropertyNameArrayRelease(JSProperty_name_array_val(prop_array));
+    CAMLreturn(Val_unit);
+  }
+
+  CAMLprim value
+  jsc_ml_property_name_array_length(value prop_array)
+  {
+    CAMLparam1(prop_array);
+    CAMLreturn(Int_val(JSPropertyNameArrayGetCount(JSProperty_name_array_val(prop_array))));
+  }
+
+  CAMLprim value
+  jsc_ml_property_name_at_index(value prop_array, value spot)
+  {
+    CAMLparam2(prop_array, spot);
+    CAMLlocal1(wrapper);
+    auto name = JSPropertyNameArrayGetNameAtIndex(JSProperty_name_array_val(prop_array),
+						  Int_val(spot));
+    wrapper = caml_alloc(sizeof(JSStringRef), Abstract_tag);
+    Store_field(wrapper, 0, (value)wrapper);
+    CAMLreturn(wrapper);
+  }
   // CAMLprim value
   // jsc_ml_test_idea(value unit)
   // {

@@ -218,42 +218,42 @@ module Object = struct
     unit =
     "jsc_ml_object_set_property"
 
-  (* external object_delete_property_exn : *)
-  (*   js_context -> js_object -> js_string -> bool = "jsc_ml_object_delete_property" *)
-  (* external object_get_property_at_index_exn : *)
-  (*   js_context -> js_object -> int -> js_value = *)
-  (*   "jsc_ml_object_get_property_at_index" *)
-  (* external object_set_property_at_index_exn : *)
-  (*   js_context -> js_object -> int -> js_value -> unit = *)
-  (*   "jsc_ml_object_set_property_at_index" *)
-  (* external object_get_private_data : *)
-  (*   js_object -> 'any_private_data option = "jsc_ml_object_get_private" *)
-  (* external object_set_private_data : *)
-  (*   js_object -> 'any_private_data -> bool = "jsc_ml_object_set_private" *)
-  (* external object_is_function : *)
-  (*   js_context -> js_object -> bool = "jsc_ml_object_is_function" *)
-
-  external object_call_as_function_exn :
-    js_context -> js_object -> this:js_object option -> js_value array -> js_value =
+  external delete_property_exn :
+    context:js_context -> target:js_object -> js_string -> bool =
+    "jsc_ml_object_delete_property"
+  external get_property_at_index_exn :
+    context:js_context -> target:js_object -> int -> js_value =
+    "jsc_ml_object_get_property_at_index"
+  external set_property_at_index_exn :
+    context:js_context -> target:js_object -> spot:int -> js_value -> unit =
+    "jsc_ml_object_set_property_at_index"
+  external get_private_data :
+    target:js_object -> 'any_private_data option = "jsc_ml_object_get_private"
+  external set_private_data :
+    target:js_object -> any:'any_private_data -> bool = "jsc_ml_object_set_private"
+  external is_function :
+    context:js_context -> js_object -> bool = "jsc_ml_object_is_function"
+    (* This needs to be reordered *)
+  external call_as_function_exn :
+    context:js_context -> js_object -> this:js_object option -> js_value array -> js_value =
     "jsc_ml_object_call_as_function"
-
-  (* external object_is_constructor : js_context -> js_object -> bool = *)
-  (*   "jsc_ml_object_is_constructor" *)
-  (* external object_call_as_constructor_exn : *)
+  external is_constructor : context:js_context -> js_object -> bool =
+    "jsc_ml_object_is_constructor"
+  (* external call_as_constructor_exn : *)
   (*   js_context -> js_object -> int -> js_value array -> js_object = *)
   (*   "jsc_ml_object_call_as_constructor" *)
-  (* external object_copy_property_names : *)
-  (*   js_context -> js_object -> js_property_name_array = *)
-  (*   "jsc_ml_object_copy_property_names" *)
-  (* external property_name_array_retain : *)
-  (*   js_property_name_array -> unit = "jsc_ml_property_name_array_retain" *)
-  (* external property_name_array_release : *)
-  (*   js_property_name_array -> unit = "jsc_ml_property_name_array_release" *)
-  (* external property_name_length : js_property_name_array -> int = *)
-  (*   "jsc_ml_property_name_array_length" *)
-  (* external property_name_at_index : *)
-  (*   js_property_name_array -> int -> js_string = *)
-  (*   "jsc_ml_property_name_at_index" *)
+  external copy_property_names :
+    context:js_context -> js_object -> js_property_name_array =
+    "jsc_ml_object_copy_property_names"
+  external property_name_array_retain :
+    js_property_name_array -> unit = "jsc_ml_property_name_array_retain"
+  external property_name_array_release :
+    js_property_name_array -> unit = "jsc_ml_property_name_array_release"
+  external property_name_length : js_property_name_array -> int =
+    "jsc_ml_property_name_array_length"
+  external property_name_at_index :
+    prop_array:js_property_name_array -> int -> js_string =
+    "jsc_ml_property_name_at_index"
   (* external property_name_accumulator_add_name : *)
   (*   js_property_name_accumulator -> js_string -> unit = *)
   (*   "jsc_ml_name_accumulator_add_name" *)
