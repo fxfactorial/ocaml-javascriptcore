@@ -46,13 +46,22 @@ module Value = struct
   external get_type : js_context -> js_value -> t = "jsc_ml_value_get_type"
   external is_undefined : context:js_context -> js_value -> bool =
     "jsc_ml_value_is_undefined"
-  external is_null : context:js_context -> js_value -> bool = "jsc_ml_value_is_null"
-  external is_bool : context:js_context -> js_value -> bool = "jsc_ml_value_is_bool"
-  external is_number : context:js_context -> js_value -> bool = "jsc_ml_value_is_number"
-  external is_string : context:js_context -> js_value -> bool = "jsc_ml_value_is_string"
-  external is_object : context:js_context -> js_value -> bool = "jsc_ml_value_is_object"
-  external is_array : context:js_context -> js_value -> bool = "jsc_ml_value_is_array"
-  external is_date : context:js_context -> js_value -> bool = "jsc_ml_value_is_date"
+  external is_null :
+    context:js_context -> js_value -> bool = "jsc_ml_value_is_null"
+  external is_bool :
+    context:js_context -> js_value -> bool = "jsc_ml_value_is_bool"
+  external is_number :
+    context:js_context -> js_value -> bool = "jsc_ml_value_is_number"
+  external is_string :
+    context:js_context -> js_value -> bool = "jsc_ml_value_is_string"
+  external is_object :
+    context:js_context -> js_value -> bool = "jsc_ml_value_is_object"
+  external is_array :
+    context:js_context -> js_value -> bool = "jsc_ml_value_is_array"
+  external is_date :
+    context:js_context -> js_value -> bool = "jsc_ml_value_is_date"
+  external to_object_exn :
+    context:js_context -> js_value -> js_object = "jsc_ml_value_to_object"
 
   module TypedArray = struct
     type t =
@@ -283,6 +292,9 @@ external to_string_of_jsvalue :
 external to_string_of_jsstring :
   context:js_context -> js_string -> string = "jsc_ml_js_string_to_string"
 (* external test_idea : unit -> string array = "jsc_ml_test_idea" *)
+external property_names_of_object :
+  context:js_context -> js_object -> string array =
+  "jsc_ml_js_prop_names_of_object"
 
 class virtual_machine = object
   val vm = Context.make ()

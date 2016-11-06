@@ -886,6 +886,60 @@ extern "C" {
     Store_field(wrapper, 0, (value)wrapper);
     CAMLreturn(wrapper);
   }
+
+  CAMLprim value
+  jsc_ml_value_to_object(value context, value js_value)
+  {
+    CAMLparam2(context, js_value);
+    CAMLlocal1(wrapper);
+    JSValueRef exn;
+    auto result = JSValueToObject(JSContext_val(context),
+				  JSValue_val(js_value),
+				  &exn);
+    // if (exn)
+    //   caml_raise_with_string(js_exn,
+    // 			     jsvalue_to_utf8_string(JSContext_val(context), exn));
+    // else {
+      wrapper = caml_alloc(sizeof(JSObjectRef), Abstract_tag);
+      Store_field(wrapper, 0, (value)result);
+      CAMLreturn(wrapper);
+    // }
+  }
+
+  CAMLprim value
+  jsc_ml_js_prop_names_of_object(value context, value object)
+  {
+    CAMLparam2(context, object);
+    CAMLlocal1(prop_names_result);
+    auto prop_names = JSObjectCopyPropertyNames(JSContext_val(context),
+						JSObject_val(object));
+    size_t total_count = JSPropertyNameArrayGetCount(prop_names);
+
+    char *ml_names[total_count];
+
+    for (size_t i = 0; i < total_count; i++) {
+      auto str = JSPropertyNameArrayGetNameAtIndex(prop_names, i);
+      size_t js_str_len = JSStringGetMaximumUTF8CStringSize(str);
+      char js_str_buffer[js_str_len];
+      JSStringGetUTF8CString(str, js_str_buffer, js_str_len);
+      ml_names[i] = (char*)malloc(js_str_len);
+      memcpy(ml_names[i], js_str_buffer, js_str_len);
+      JSStringRelease(str);
+    }
+
+    JSPropertyNameArrayRelease(prop_names);
+    ml_names[total_count] = NULL;
+
+    prop_names_result = caml_alloc_array([](auto item) {
+	CAMLparam0();
+	CAMLreturn(caml_copy_string(item));
+      }, (const char **)ml_names);
+
+    for (size_t i = 0; i < total_count; i++) free(ml_names[i]);
+
+    CAMLreturn(prop_names_result);
+  }
+
   // CAMLprim value
   // jsc_ml_test_idea(value unit)
   // {
