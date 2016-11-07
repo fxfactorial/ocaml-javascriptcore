@@ -89,3 +89,11 @@ let () =
 
   JSC.property_names_of_object ctx obj
   |> Array.iter print_endline
+
+(* Segfaults *)
+(* let () = *)
+(*   let ctx = JSC.Context.make () in *)
+(*   let value = JSC.Value.make_string ctx (JSC.String.create_with_utf8 "hello") in *)
+(*   let prototype = JSC.Object.get_prototype ctx value in *)
+(*   JSC.property_names_of_object ctx prototype *)
+(*   |> Array.iter print_endline *)

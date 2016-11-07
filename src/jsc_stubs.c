@@ -940,6 +940,26 @@ extern "C" {
     CAMLreturn(prop_names_result);
   }
 
+  CAMLprim value
+  jsc_ml_object_get_prototype(value context, value object)
+  {
+    CAMLparam2(context, object);
+    CAMLlocal1(wrapper);
+    auto result = JSObjectGetPrototype(JSContext_val(context),
+				       JSObject_val(object));
+    wrapper = caml_alloc(sizeof(JSValueRef), Abstract_tag);
+    Store_field(wrapper, 0, (value)result);
+    CAMLreturn(wrapper);
+  }
+
+  CAMLprim value
+  jsc_ml_object_has_property(value context, value target, value prop_name)
+  {
+    CAMLparam3(context, target, prop_name);
+    CAMLreturn(Bool_val(JSObjectHasProperty(JSContext_val(context),
+					    JSObject_val(target),
+					    JSString_val(prop_name))));
+  }
   // CAMLprim value
   // jsc_ml_test_idea(value unit)
   // {

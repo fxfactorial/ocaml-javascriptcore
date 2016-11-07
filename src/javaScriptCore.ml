@@ -183,20 +183,21 @@ module Object = struct
     ?default_class:js_class -> ?private_data:'a -> js_context -> js_object =
     "jsc_ml_object_object_make"
 
-  (* external object_make_with_callback : *)
+  (* external make_with_callback : *)
   (*   js_context -> js_string option -> call_as_function_cb_exn -> js_object = *)
   (*   "jsc_ml_object_make_with_callback" *)
-  (* external object_make_constructor : *)
+  (* external make_constructor : *)
   (*   js_context -> js_class option -> call_as_constructor_cb_exn option -> js_object = *)
   (*   "jsc_ml_object_make_constructor" *)
-  (* external object_make_array_exn : js_context -> int -> js_value array -> js_object = *)
+  (* external make_array_exn : js_context -> int -> js_value array -> js_object = *)
   (*   "jsc_ml_object_make_array" *)
-  (* external object_make_date_exn : js_context -> int -> js_value array -> js_object = *)
+  (* external make_date_exn : js_context -> int -> js_value array -> js_object = *)
   (*   "jsc_ml_object_make_date" *)
-  (* external object_make_error_exn : js_context -> int -> js_value array -> js_object = *)
+  (* external make_error_exn : js_context -> int -> js_value array -> js_object = *)
   (*   "jsc_ml_object_make_error" *)
-  (* external object_make_regexp_exn : js_context -> int -> js_value array -> js_object = *)
+  (* external make_regexp_exn : js_context -> int -> js_value array -> js_object = *)
   (*   "jsc_ml_object_make_regexp" *)
+
   type make_function_params = {
     context : js_context;
     function_name : js_string option;
@@ -208,12 +209,15 @@ module Object = struct
   external make_function_exn :
     make_function_params -> js_object = "jsc_ml_object_make_function"
 
-  (* external object_get_prototype : js_context -> js_object -> js_value = *)
-  (*   "jsc_ml_object_get_prototype" *)
+  external get_prototype : context:js_context -> js_object -> js_value =
+    "jsc_ml_object_get_prototype"
+
   (* external object_set_prototype : js_context -> js_object -> js_value -> unit = *)
   (*   "jsc_ml_object_set_prototype" *)
-  (* external object_has_property : js_context -> js_object -> js_string -> bool = *)
-  (*   "jsc_ml_object_has_property" *)
+
+  external has_property : context:js_context -> target:js_object -> js_string -> bool =
+    "jsc_ml_object_has_property"
+
   external get_property_exn :
     context:js_context ->
     target:js_object ->
